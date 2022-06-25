@@ -13,7 +13,7 @@ l_pattern=length(exec_pattern);
 l=30;
 epsilon = 0.364;
 exp_decay= (log(1/epsilon))/l;  % desired decay rate from (l,epsilon)
-exp_decay_dt = exp(-exp_decay);%epsilon^(1/l);  % desired decay rate in discrete domain
+exp_decay_dt = epsilon^(1/l);  % desired decay rate in discrete domain
 stab=1;                        % while loop first run
 i=1;
 cnt=6;
@@ -135,7 +135,7 @@ isCtrb = [];
 isStable =[];
 slack = 0.001;
 ctrbl = 1 ;
-unstable_count = 0;
+unstable_count =0;
 h = Ts;
 %%%%%%%%%%%%%%%%%5%%%%--plant with sampling period=m*h --%%%%%%%%%%%%%%%%%%%%%
 while ctrbl
@@ -150,7 +150,7 @@ while ctrbl
     isStabler(i) = howStabler(i) >= 1;
 %     Alpha_di(i) = -0.4;
 %     Alpha_diBar(i)=1+Alpha_di(i);
-    alpha(i) = -0.893;%sdpvar(1,1);
+    alpha(i) = -0.99;%sdpvar(1,1);
 %     assign(alpha(i),0.9);
     if(isCtrb(i))
         Bm = zeros(2.*size(B));
@@ -158,10 +158,7 @@ while ctrbl
         Dm = zeros(size(Cm,1),size(Bm,2));
         closed_loops{i}=ss(Am,Bm,Cm,Dm,Ts);
         if isStable(i)
-            fprintf("\n stable for %dh sampling time\n",i);
-            if isStabler(i)
-                fprintf("\n %f times stabler than desired for %dh sampling time\n",howStabler(i),i);
-            end
+            fprintf("\n stable for %dh sampling time",i);
         else
             fprintf("\n unstable for %dh sampling time",i);
             unstable_count = unstable_count + 1;
@@ -207,17 +204,14 @@ for i=1:size(P_di,2)
     mum_di{i}=sdpvar(1,1);
     for j=1:size(P_di,2)
 %        constraints=[constraints, P{i}-mum{i}*eye(size(P{j}))*P{j}<= 0,mum{i}>1];
-        constraints_di=[constraints_di,...
-                        P_di{i}-mum_di{i}*eye(size(P_di{j}))*P_di{j}<= 0,...
-                                                            mum_di{i}-1>=slack];
+        constraints_di=[constraints_di, P_di{i}-mum_di{i}*eye(size(P_di{j}))*P_di{j}<= 0,mum_di{i}-1>=slack];
 %         mu(j)=(det(P{i}/P{j})^(1/size(P{i},1)));        
    end
 end
 %%%%%%%%%%%%--Solving LMI to find out Mu--%%%%%%%%%%%%%%
-fprintf("mu derivation by cs...")
-check(constraints_di);
+% optimize(constraints,[],ops);
 sol = optimize(constraints_di,[],ops);
-solved = sol.problem
+solved = sol.problem;
 p=1;q=1;
 gammaUnstable=[];
 %%%%%%%%%%%--Gamma,Taud calculation--%%%%%%%%%%%%%
