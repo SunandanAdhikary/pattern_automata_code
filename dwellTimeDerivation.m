@@ -2,7 +2,7 @@ clc;
 clear all;
 ops = sdpsettings('verbose',0);
 ops1 = sdpsettings('verbose',1);
-system = "acc_platoon_pf"
+system = "fuel_injection"
 mlfonly = 0;
 %%%%%%%%%%%%%%--Given l,epsolon,sampling period--%%%%%%%%%%%%%
 exec_pattern='10001001101101011101';
@@ -13,7 +13,7 @@ exec_pattern_states=unique(exec_pattern2);
 l_pattern=length(exec_pattern);
 % l=l_pattern;
 l=90;
-epsilon = 0.364;
+epsilon = 0.264;
 exp_decay= (log(1/epsilon))/l;  % desired decay rate from (l,epsilon)
 exp_decay_dt = epsilon^(1/l);   % exp(-exp_decay); % desired decay rate in discrete domain
 stab=1;                         % while loop first run
@@ -21,6 +21,86 @@ i=1;
 cnt=6;
 horizon=100;
 %%%%%%%%%%% plants %%%%%%%%%%%
+if system=="batch_reactor"
+    A = [1.38 0.2077 6.715 5.676;
+        0.5814 4.29 0 0.675;
+        1.067 4.273 6.654 5.893;
+        0.048 4.273 1.343 -2.104];
+    dim = size(A,1);
+    B = [0 0;5.679 0;1.136 -3.146;1.136 0];
+    C = [1 0 1 -1;0 1 0 0];
+    D = zeros(size(C,1),size(B,2));
+    Ts = 0.1;
+%     Ts_new =0.05;
+    sys = ss(A,B,C,D);
+    sys_d = c2d(sys,Ts);
+%     sysd2 = d2d(sys_d,Ts_new);
+    [A,B,C,D,Ts] = ssdata(sys_d);
+    open_loop = ss(A,B,C,D,Ts);
+    [A,B,C,D] = ssdata(open_loop);
+    eig_open= eig(A);                   
+    Q= eye(size(A,2));
+    R= 0.05*eye(size(B,2));
+    proc_dev= 0.001; meas_dev=0.0001;
+    QN = eye(size(B,1)).*proc_dev^2*(B*B');
+    RN = eye(size(C,1)).*meas_dev^2;
+    QXU = blkdiag(Q,R);
+    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
+    QWV = blkdiag(QN,RN);
+    x0 = [10;0;0.1;0];
+end
+if system=="water_treatment"
+    A = [-0.138   0         0;
+        0.006664 -0.006664  0;
+        0         0.002216 -0.002216];
+    dim = size(A,1);
+    B = [0.1328 0 0;0 0 0;0 0 0];
+    C = [0 0 1];
+    D = zeros(size(C,1),size(B,2));
+    Ts = 0.1;
+    Ts_new =0.05;
+    sys = ss(A,B,C,D);
+    sys_d = c2d(sys,Ts);
+    sysd2 = d2d(sys_d,Ts_new);
+    [A,B,C,D,Ts] = ssdata(sysd2);
+    open_loop = ss(A,B,C,D,Ts);
+    [A,B,C,D] = ssdata(open_loop);
+    eig_open= eig(A);                   
+    Q= eye(size(A,2));
+    R= 0.05*eye(size(B,2));
+    proc_dev= 0.001; meas_dev=0.0001;
+    QN = eye(size(B,1)).*proc_dev^2*(B*B');
+    RN = eye(size(C,1)).*meas_dev^2;
+    QXU = blkdiag(Q,R);
+    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
+    QWV = blkdiag(QN,RN);
+    x0 = [10;0;0.1];
+end
+if system=="temp_ctrl"
+    A=[-0.11 0.1;0 -50];
+    B=[0;-50];
+    C=[1 0];
+    D=[0];
+    Ts=0.5;
+    Ts_new =0.05;
+    sys = ss(A,B,C,D);
+    sys_d = c2d(sys,Ts);
+    sysd2 = d2d(sys_d,Ts_new);
+    [A,B,C,D,Ts] = ssdata(sysd2);
+    open_loop = ss(A,B,C,D,Ts);
+    [A,B,C,D] = ssdata(open_loop);
+    eig_open= eig(A);                   
+    Q= eye(size(A,2));
+    R= 0.05*eye(size(B,2));
+    proc_dev= 0.001; meas_dev=0.0001;
+    QN = eye(size(B,1)).*proc_dev^2*(B*B');
+    RN = eye(size(C,1)).*meas_dev^2;
+    QXU = blkdiag(Q,R);
+    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
+    QWV = blkdiag(QN,RN);
+    x0 = [10;0];
+    safex = [-30,-30;30,30];
+end
 if system=="acc_platoon_pf"
     N = 3; %excluding leader
     tau = 0.5; %inertial delay of vehicle longitudinal dynamics
@@ -34,17 +114,17 @@ if system=="acc_platoon_pf"
     C = eye(dim);
     D = zeros(size(C,1),size(B,2));
     Ts = 0.1;
-    Ts_new =0.03;
+    Ts_new =0.05;
     sys = ss(A,B,C,D);
     sys_d = c2d(sys,Ts);
     sysd2 = d2d(sys_d,Ts_new);
     [A,B,C,D,Ts] = ssdata(sysd2);
-    L = [0	0	0;
-        -1	1	0;
-        0	-1	1];
-    P = [1	0	0;
-        0	0	0;
-        0	0	0];
+    L = [0	 0	0;
+        -1	 1	0;
+         0	-1	1];
+    P = [1	 0	0;
+         0	 0	0;
+         0	 0	0];
     Ac = kron(eye(N),A);
     Bc = kron(L+P,B);
     Cc = zeros(N,dim*N);
@@ -54,14 +134,102 @@ if system=="acc_platoon_pf"
     Dc = zeros(size(Cc,1),size(Bc,2));
     x0=[];
     for jj=1:N
-        x0 = [x0;(N-jj+1)*veh_len+(N-jj+1)*d;20;0]
+        x0 = [x0;(N-jj+1)*veh_len+(N-jj+1)*d;20;0];
     end
     open_loop = ss(Ac,Bc,Cc,Dc,Ts);
-    [A,B,C,D] = ssdata(open_loop)
+    [A,B,C,D] = ssdata(open_loop);
     eig_open= eig(Ac);                   
     Q= eye(size(A,2));
-    R= eye(size(B,2));
+    R= 0.05*eye(size(B,2));
     proc_dev= 0.001; meas_dev=0.0001;
+    QN = eye(size(B,1)).*proc_dev^2*(B*B');
+    RN = eye(size(C,1)).*meas_dev^2;
+    QXU = blkdiag(Q,R);
+    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
+    QWV = blkdiag(QN,RN);
+end
+if system=="acc_platoon_tplf"
+    N = 3; % excluding leader
+    tau = 0.5; % inertial delay of vehicle longitudinal dynamics
+    d = 20; % desired spacing d_{i,i-1} in m
+    veh_len = 4; % in m
+    A = [0 1 0;
+        0 0 1;
+        0 0 -1/tau];
+    dim = size(A,1);
+    B = [0;0;1/tau];
+    C = eye(dim);
+    D = zeros(size(C,1),size(B,2));
+    Ts = 0.1;
+    Ts_new =0.05;
+    sys = ss(A,B,C,D);
+    sys_d = c2d(sys,Ts);
+    sysd2 = d2d(sys_d,Ts_new);
+    [A,B,C,D,Ts] = ssdata(sysd2);
+    L = [0	 0	0;
+        -1	 1	0;
+        -1	-1	2];
+    P = [1	0	0;
+         0	1	0;
+         0	0	1];
+    Ac = kron(eye(N),A);
+    Bc = kron(L+P,B);
+    Cc = zeros(N,dim*N);
+    for ii = 1:N
+        Cc(ii,(ii-1)*dim+1) = 1;
+    end
+    Dc = zeros(size(Cc,1),size(Bc,2));
+    x0=[];
+    for jj=1:N
+        x0 = [x0;(N-jj+1)*veh_len+(N-jj+1)*d;20;0];
+    end
+    open_loop = ss(Ac,Bc,Cc,Dc,Ts);
+    [A,B,C,D] = ssdata(open_loop);
+    eig_open= eig(Ac);                   
+    Q= eye(size(A,2));
+    R= 0.0000000005*eye(size(B,2));
+    proc_dev= 0.1; meas_dev=0.1;
+    QN = eye(size(B,1)).*proc_dev^2*(B*B');
+    RN = eye(size(C,1)).*meas_dev^2;
+    QXU = blkdiag(Q,R);
+    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
+    QWV = blkdiag(QN,RN);
+end
+if system=="four_car_platoon"
+% states: position and velocities of 4 vehicles
+% inputs: velocities
+% output: positions
+    Ts = 0.1;
+    A =[1.10517091807565,0.0110517091807565,0,0,0,0,0,0;0,1.10517091807565,0,0,0,0,0,0;0,0,1.10517091807565,0.0110517091807565,0,0,0,0;0,0,0,1.10517091807565,0,0,0,0;0,0,0,0,1.10517091807565,0.0110517091807565,0,0;0,0,0,0,0,1.10517091807565,0,0;0,0,0,0,0,0,1.10517091807565,0.0110517091807565;0,0,0,0,0,0,0,1.10517091807565];
+    B =[5.34617373191714e-05,0,0,0;0.0105170918075648,0,0,0;5.34617373191714e-05,-5.34617373191714e-05,0,0;0.0105170918075648,-0.0105170918075648,0,0;0,5.34617373191714e-05,-5.34617373191714e-05,0;0,0.0105170918075648,-0.0105170918075648,0;0,0,5.34617373191714e-05,-5.34617373191714e-05;0,0,0.0105170918075648,-0.0105170918075648];
+    C =[1,0,0,0,0,0,0,0;0,0,1,0,0,0,0,0;0,0,0,0,1,0,0,0;0,0,0,0,0,0,1,0];
+    D =zeros(size(C,1),size(B,2));
+    actuator_limit = [10;10;10;10];
+    sensor_limit = [20;20;20;20];
+    safex = [-20,-10,-20,-10,-20,-10,-20,-10;20,10,20,10,20,10,20,10];
+    Q = C'*C;
+    R = B'*B;
+    open_loop = ss(A,B,C,D,Ts);
+    Ts_new =0.03;
+    open_loop = d2d(open_loop,Ts_new);
+    [A,B,C,D,Ts] = ssdata(open_loop);
+    x0 = [0;10;20;20;30;30;40;40];
+%     [K,S,E]=dlqr(A,B,Q,R);
+%     sys_d =ss(A-B*K,B,C,D,Ts);
+%     L = [7.38472324606530e-09	1.10767378478111e-08	-3.69178068993179e-09	-2.35766404514692e-13;...
+%         -8.06607123878028e-08	-1.20987484468706e-07	4.03243462966293e-08	2.45231890733761e-12;...
+%         1.10767378620785e-08	2.21532418194634e-08	-1.47682827951273e-08	3.69154491818929e-09;...
+%         -1.20987484656173e-07	-2.41972543487752e-07	1.61309378729129e-07	-4.03218939403918e-08;...
+%         -3.69178073241593e-09	-1.47682827566559e-08	2.21530060221851e-08	-1.47685185520782e-08;...
+%         4.03243467777148e-08	1.61309378236735e-07	-2.41970090967650e-07	1.61311830983905e-07;...
+%         -2.35746720559148e-13	3.69154491801782e-09	-1.47685185240281e-08	1.84614611047725e-08;...
+%         2.45206180642458e-12	-4.03218938420706e-08	1.61311830610115e-07	-2.01648197004208e-07];
+    perf = 0.1.*safex;
+    threshold =4.35;
+    uatkon=[1];   % attack on which u
+    yatkon=[1];   % attack on which y
+    rate =0.5;
+    proc_dev= 0.1; meas_dev=0.1;
     QN = eye(size(B,1)).*proc_dev^2*(B*B');
     RN = eye(size(C,1)).*meas_dev^2;
     QXU = blkdiag(Q,R);
@@ -108,7 +276,7 @@ if system=="fuel_injection"
     % inputs: inlet valve air flow, combustion torque
     % output: AFR
     Ts = 0.01;
-    Ts_new = 0.25;
+    Ts_new = 0.01;
     A = [0.18734,0.13306,0.10468;
         0.08183,0.78614,-0.54529;
         -0.00054 0.10877,0.26882];
@@ -136,6 +304,7 @@ if system=="fuel_injection"
     safex = [-0.22,-1.5,-5;0.22,1.5,5].*3;
     % initial region of this system to safely start from
     ini = 0.7.*safex;
+    x0 = ini(2,:)';
     perf = 0.1.*safex;
     % for central chi2 FAR < 0.05
     sensor_limit = 80;  % columnwise range of each y
@@ -154,7 +323,7 @@ if system=="trajectory"
     C = [1 0];
     D = [0];
     open_loop = ss(A,B,C,D,Ts);
-    Ts_new = 0.5;
+    Ts_new = 0.1;
     open_loop1 = d2d(open_loop,Ts_new);
     [A,B,C,D,Ts] = ssdata(open_loop1);
     Q= eye(size(A,2));
@@ -172,9 +341,10 @@ if system=="trajectory"
     perf = perf_region_depth.*safex;
     threshold = 4.35;
     t=20;
-    rate = 0.5;
+    rate = 0.6;
     QXU = blkdiag(Q,R);
     QWV = blkdiag(QN,RN,1); 
+    x0 = [10;30];
 end
 if system=="dcmotor_pos"
     % states: rotational ang., angular vel., armature current
@@ -190,7 +360,7 @@ if system=="dcmotor_pos"
 %     J = 0.01;
 %     b = 0.1;
 %     KK = 0.01;
-%     RR = 1;
+%     RR 
 %     LL = 0.5;
     Ac = [0 1 0;
         0 -b/J KK/J;
@@ -198,7 +368,7 @@ if system=="dcmotor_pos"
     Bc = [0; 0; 1/LL];
     Cc = [1 0 0];
     Dc = [0];
-    
+    x0 = [0;10;10];
     % discretize
     [A,B,C,D]=ssdata(c2d(ss(Ac,Bc,Cc,Dc),Ts));
     open_loop = ss(A,B,C,D,Ts);
@@ -230,10 +400,9 @@ if system=="dcmotor_pos"
     QXU = blkdiag(Q,R);
     QWV = blkdiag(QN,RN); 
 end
-[Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop);
-lqg_reg=lqg(open_loop,QXU,QWV);
+[Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop) ;
+lqg_reg = lqg(open_loop,QXU,QWV);
 [Acd,Bcd,Ccd,Dcd]=ssdata(lqg_reg);  %K = -Ccd;
-
 
 A1=[Ap1 Bp1*Ccd;Bcd*Cp1 Acd]; 
 A0=[Ap1 Bp1*Ccd;0.*Bcd*Cp1 eye(size(Acd))]; 
@@ -249,12 +418,10 @@ h = Ts;
 %%%%%%%%%%%%%%%%%5%%%%--plant with sampling period=m*h --%%%%%%%%%%%%%%%%%%%%%
 P_var = sdpvar(size(A1,1),size(A1,1));
 constraints = [P_var >= slack];
-clfsolved = 1;
-mlfsolved = 1;
+clfsolved(1) = 1;
+mlfsolved(1) = 1;
 i = 1;
-figure(1);
-legendstring={};
-hold on;
+% hold on;
 while ctrbl 
     Ts=i*h;        
     Am = A1*A0^(i-1);
@@ -270,10 +437,19 @@ while ctrbl
     Cm = blkdiag(Cp1,zeros(size(Ccd)));
     Dm = zeros(size(Cm,1),size(Bm,2));
     closed_loops{i}=ss(Am,Bm,Cm,Dm,Ts);
+%     [Y,T,X] = step(closed_loops{i});
     [Y,T,X] = initial(closed_loops{i},[x0;0.*x0]);
-    plot(Y(1,:));
-    legendstring = {legendstring,"Y1_"+num2str(Ts)};
-    constraints = [constraints, Am'*P_var*Am-(1+alpha(i))*eye(size(Am))*P_var <= slack];
+    figure("Name","Outputs for "+num2str(Ts));
+    plot(Y(:,1:2));
+    legend(["y1","y2","y3"]);
+    %     P_di{i} = dlyap(Am,alpha(i)*eye(size(Am)));
+    Pm_di{i}=sdpvar(size(Am,1),size(Am,1));
+    constraint_di=[Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
+                   Pm_di{i} >= slack];
+%     constraint_di=[Am'*Pm_di{i}*Am-(1+Alpha_di(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
+%                             -Pm_di{i} <= slack];
+%     constraint_di=[Am'*Pm_di{i}*Am-Pm_di{i}+blkdiag(Q,Q) <= slack,...
+%                            -Pm_di{i} <= slack];
     if isStable(i)
         fprintf("\n stable for %dh sampling time\n",i);
         howStabler(i) = max_eig/exp_decay_dt;
@@ -281,10 +457,11 @@ while ctrbl
         if isStabler(i)
             fprintf("\n %f times stabler than desired for %dh sampling time\n",howStabler(i),i);
         end
+        constraints = [constraints, Am'*P_var*Am-(1+alpha(i))*eye(size(Am))*P_var <= slack];
     else
         fprintf("\n unstable for %dh sampling time\n",i);
-        howStabler(i) = -1;
-        isStabler(i) = -1;
+        howStabler(i) = 0;
+        isStabler(i) = 0;
         unstable_count = unstable_count + 1;
     end
     if unstable_count > 5
@@ -294,26 +471,18 @@ while ctrbl
     %%%--LMi solution to find out Lyapunov func Fast switching--%%%
     fprintf("CLF : solving for alpha = "+num2str(alpha(i))+ " for the system with sampling period from "+ num2str(h)+"s to "+num2str(Ts)+ "s\n");
     sol=optimize(constraints,[],ops);
-    clfsolved = sol.problem
-    if clfsolved == 0  && mlfonly == 0
+    clfsolved(i) = sol.problem
+    if clfsolved(i) == 0  && mlfonly == 0 && isStable(i)
         fprintf("CLF..\n");
         P=value(P_var);  
         P_di{i} = P;
     else
-    %%%--LMi solution to find out Lyapunov func Slow switching--%%%
-    fprintf("MLF : solving for alpha = "+num2str(alpha(i))+ " for the system with "+num2str(Ts)+ " sampling period\n");
-%     P_di{i} = dlyap(Am,alpha(i)*eye(size(Am)));
-    Pm_di{i}=sdpvar(size(Am,1),size(Am,1));
-    constraint_di=[Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
-                   Pm_di{i} >= slack];
-%     constraint_di=[Am'*Pm_di{i}*Am-(1+Alpha_di(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
-%                             -Pm_di{i} <= slack];
-%     constraint_di=[Am'*Pm_di{i}*Am-Pm_di{i}+blkdiag(Q,Q) <= slack,...
-%                            -Pm_di{i} <= slack];
-    sol=optimize(constraint_di,[],ops);
-    mlfsolved = sol.problem
-%         alpha(i) = alpha(i) + 0.01;
-    P_di{i}=value(Pm_di{i});           %%--P values for discrete sys 
+        %%%--LMi solution to find out Lyapunov func Slow switching--%%%
+        fprintf("MLF : solving for alpha = "+num2str(alpha(i))+ " for the system with "+num2str(Ts)+ " sampling period\n");
+        sol=optimize(constraint_di,[],ops);
+        mlfsolved(i) = sol.problem
+    %         alpha(i) = alpha(i) + 0.01;
+        P_di{i}=value(Pm_di{i});           %%--P values for discrete sys 
     end
     Alpha_di(i) = value(alpha(i));
 %     Alpha_di(i) = -min(eig(blkdiag(Q,Q)))/max(eig(P_di{i}));% Q+K'*B'*A+A'*B*K
@@ -321,7 +490,7 @@ while ctrbl
     i=i+1;
 end
 % legend([legendstring]);
-hold off;
+% hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % p=1;q=1;
 for i=1:size(P_di,2)
@@ -341,42 +510,43 @@ sol1 = optimize(constraints_di,[],ops);
 musolved = sol1.problem
 p=1;q=1;
 gammaStable = [];
-gammaLessStable = [];
+gammaLessstable = [];
 gammaUnstable=[];
 %%%%%%%%%%%--Gamma,Taud calculation--%%%%%%%%%%%%%
 for i=1:size(P_di,2)
-    if mlfsolved == 0
-        Mu(i)=double(mum_di{i});
-    elseif clfsolved == 0
+    if clfsolved(end) == 0
         Mu(i)=1;
+    elseif mlfsolved(end) == 0 && musolved == 0 
+        Mu(i)=double(mum_di{i})
     end
 
     Taud(i)= -log(Mu(i))/log(Alpha_diBar(i));                   % considering gamma_i <= 1
-%         Taud(i)= log(Mu(i))/abs(log(Alpha_diBar(i)));
-        gamma(i)= (Alpha_diBar(i)*((Mu(i))^(1/Taud(i))));
+%         Taud(i)= log(Mu(i))/abs(log(Alpha_diBar(i)));        
+    gamma(i)= (Alpha_diBar(i)*((Mu(i))^(1/Taud(i))));
 %        gamma(i)= Alpha_di(i)+(log(Mu(i))/Taud(i))
-        if(isStabler(i))
-           gammaStable(p)= gamma(i);      %%--gamma_plus
- %          gammaStable(p)= (gamma_eig(i));
-            p=p+1;
-        else
-           gammaLessstable(q)=gamma(i);    %%%--gamma_minus
- %          gammaUnstable(q)= (gamma_eig(i));
-            q=q+1;
-        end
+    if(isStabler(i))
+       gammaStable(p) = gamma(i);      %%--gamma_plus
+%          gammaStable(p)= (gamma_eig(i));
+        p=p+1;
+    else
+       gammaLessstable(q) = gamma(i);   %%%--gamma_minus
+%          gammaUnstable(q)= (gamma_eig(i));
+        q=q+1;
+    end
+
 end  % end for
 %%%%%%%%%%%%%%--Values derived--%%%%%%%%%%%%%%%
-DwellingRatio =1;
+DwellingRatio = 1;
 if(~isempty(gammaLessstable)) && (~isempty(gammaStable))
-    DwellingRatio= ceil((log(max(gammaLessstable))+(exp_decay))/(-log(max(gammaStable))+(exp_decay)));
+    DwellingRatio= ceil((log(max(gammaLessstable))+log(exp_decay_dt))/(-log(max(gammaStable))+log(exp_decay_dt)));
     % DwellingRatio= ceil((((max(gammaUnstable)))+(exp_decay))/(((max(gammaStable))))-(exp_decay));
     % T_minus (dwelling time in stable sys)/T_plus (dwelling time in unstable sys)
 else
-    if isempty(gammaLessstable)
+    if isempty(gammaStable)
         fprintf("All are less controllable modes than desired.\n")
     end
     if isempty(gammaLessstable)
-        fprintf("All are less controllable modes than desired.\n")
+        fprintf("All are more controllable modes than desired.\n")
     end
 end
 %% deriving dwell times
@@ -469,7 +639,7 @@ dwell_durations = value(dwell_times);
 % end   
 % end
 % 
-% %%%%%%%%%--plot--%%%%%%%%%%
+%%%%%%%%%--plot--%%%%%%%%%%
 %    if(shouldPlot==1)
 %      figure(1);
 %      [AX,H1,H2] = plotyy(t,x(1,:),t,n,'plot');              %%% state vs time on switching modes
@@ -488,7 +658,7 @@ dwell_durations = value(dwell_times);
 %      grid on;
 %     end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%
-nn =size(P_di,2);
+nn = size(P_di,2);
 for i=1:nn
     Sampling_Time(i)=closed_loops{i}.Ts;
     Count(i)= (ceil(Taud(i)/closed_loops{i}.Ts));     %%%--Permissible self loop count
