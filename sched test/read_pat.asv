@@ -1,0 +1,20 @@
+
+system ="trajectory";
+lines = 2;
+minatklen = zeros(1,lines);
+n = 30;
+subseqs={};
+fileID = fopen('test_out.out','r');
+for i=1:lines
+%     if i == lines
+%         subseq = fscanf(fileID,'%1d\n',1);
+%     end
+    subseq = fscanf(fileID,'%1d\t',n)'
+    [finalpat,minatklen(i)]=find_respat(system,subseq);
+    subseqs{i}=subseq;
+end
+fclose(fileID);
+max_minatklen=0;
+j=0;
+[max_minatklen,j] = max(minatklen,[],2);
+subseqs{j}
