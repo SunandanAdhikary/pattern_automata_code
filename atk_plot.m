@@ -299,7 +299,6 @@ for i=1:n-1
 %     if pat(i)
     y = pat_func(pat(i),trunc(C*x,sensor_limit),y);%+normrnd(0,1/12,[1 1]);
     ya = pat_func(pat(i),trunc(C*xa + ay(i),sensor_limit),ya);%+normrnd(0,1/12,[1 1]);
-
 %     end
     xhat = A*xhat + B*u + L*r;
     xhata = A*xhata + B*ua + L*ra;

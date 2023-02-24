@@ -12,5 +12,5 @@ end
 fclose(fileID);
 max_minatklen=0;
 j=0;
-[max_minatklen,j] = max(minatklen);
+[max_minatklen,j] = max(minatklen)
 subseqs{j}
