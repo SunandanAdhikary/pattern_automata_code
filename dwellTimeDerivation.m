@@ -1,19 +1,19 @@
 clc;
 clear all;
 ops = sdpsettings('verbose',0);
-ops1 = sdpsettings('verbose',1);
-system = "fuel_injection"
+ops1 = sdpsettings('verbose',0);
+system = "cruise_control"
 mlfonly = 0;
 %%%%%%%%%%%%%%--Given l,epsolon,sampling period--%%%%%%%%%%%%%
-exec_pattern='10001001101101011101';
+exec_pattern='1';
 exec_pattern1= strrep(exec_pattern, '1','.1');
 exec_pattern2= split(exec_pattern1,'.');
 exec_pattern2(1)=[];
 exec_pattern_states=unique(exec_pattern2);
 l_pattern=length(exec_pattern);
 % l=l_pattern;
-l=90;
-epsilon = 0.264;
+l=10;
+epsilon = 0.364;
 exp_decay= (log(1/epsilon))/l;  % desired decay rate from (l,epsilon)
 exp_decay_dt = epsilon^(1/l);   % exp(-exp_decay); % desired decay rate in discrete domain
 stab=1;                         % while loop first run
@@ -317,13 +317,13 @@ if system=="fuel_injection"
     QWV = blkdiag(QN,RN);
 end
 if system=="trajectory"
-    Ts=0.1;
+    Ts = 0.1;
     A = [1.0000    0.1000; 0    1.0000];
     B = [0.0050; 0.1000];
     C = [1 0];
     D = [0];
     open_loop = ss(A,B,C,D,Ts);
-    Ts_new = 0.1;
+    Ts_new = 0.2;
     open_loop1 = d2d(open_loop,Ts_new);
     [A,B,C,D,Ts] = ssdata(open_loop1);
     Q= eye(size(A,2));
@@ -400,17 +400,185 @@ if system=="dcmotor_pos"
     QXU = blkdiag(Q,R);
     QWV = blkdiag(QN,RN); 
 end
-[Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop) ;
+if system=="cruise_control"
+    % emsoft sumana ghosh 17
+    % states: speed, position,?
+    % output speed
+    % input throttle angle
+    Ts = 0.04;
+    A = [0 1 0;
+         0 0 1;
+        -6.0476 -5.2856 -0.238];
+    B = [0; 0; 2.4767];
+    C = [1 0 0];
+    D = [0];
+    x0 = [0;10;10];
+    open_loop = ss(A,B,C,D,Ts);
+    open_loop_dt = d2d(open_loop,Ts);
+    [A,B,C,D] = ssdata(open_loop_dt);
+    q=100;r=1;
+%     Q=q*(C')*C;
+    Q=q*eye(size(A,2));
+    R=r*eye(size(B,2));
+    [K,S,E] = dlqr(A,B,Q,R);
+    K
+    proc_dev= 0.01; 
+    meas_dev=0.001;
+    QN = proc_dev*proc_dev*eye(size(B,1));
+    RN = meas_dev*meas_dev*eye(size(C,1));
+    sys_ss = ss(A-B*K,B,C,D,Ts);
+%     [kalmf,L,P,M] = kalman(sys_ss,QN,RN);
+%     safex = [];
+%     % from perfReg.py with this system
+%     perf = 0.5.*[-1.67,-1.67,-1.67;-1.47,-1.47,-1.47];
+%     % safer region of this system to start from
+%     ini = perf;
+%     % for central chi2 FAR < 0.05
+%     th = 4.35;              % new: changed it a bit so that without attack, the residue remains below threshold.
+%     sensor_limit = 0.5*4;  % columnwise range of each y
+%     actuator_limit = 0.5*5;   % columnwise range of each u
+    settlingTime = 13; 
+    rate = 0.55;
+    QXU = blkdiag(Q,R);
+    QWV = blkdiag(QN,RN); 
+end
+if system=="suspension_control"
+    % emsoft sumana ghosh 17
+    % states: position, speed of vehicle, suspended mass
+    % output speed
+    % input force applied on the body
+    Ts = 0.08;
+    A = [0 1 0 0;
+        -8 -4 8 4;
+        0 0 0 1;
+        80 40 -160 -60];
+    B = [0; 80; 20; -1120];
+    C = [1 0 0 0];
+    D = [0];
+    x0 = [10;10;10;0];
+    open_loop = ss(A,B,C,D);
+    open_loop_dt = c2d(open_loop,Ts);
+    [A,B,C,D] = ssdata(open_loop_dt);
+    q=1;r=1;
+    Q=q*(C')*C;
+    R=r*eye(size(B,2));
+    [K,S,E] = dlqr(A,B,Q,R);
+    K
+    proc_dev= 0.01; 
+    meas_dev=0.001;
+    QN = proc_dev*proc_dev*eye(size(B,1));
+    RN = meas_dev*meas_dev*eye(size(C,1));
+    sys_ss = ss(A-B*K,B,C,D,Ts);
+%     [kalmf,L,P,M] = kalman(sys_ss,QN,RN);
+%     safex = [];
+%     % from perfReg.py with this system
+%     perf = 0.5.*[-1.67,-1.67,-1.67;-1.47,-1.47,-1.47];
+%     % safer region of this system to start from
+%     ini = perf;
+%     % for central chi2 FAR < 0.05
+%     th = 4.35;              % new: changed it a bit so that without attack, the residue remains below threshold.
+%     sensor_limit = 0.5*4;  % columnwise range of each y
+%     actuator_limit = 0.5*5;   % columnwise range of each u
+    settlingTime = 13; 
+    rate =0.55;
+    QXU = blkdiag(Q,R);
+    QWV = blkdiag(QN,RN); 
+end
+if system=="dcmotor_speed"
+    % emsoft sumana ghosh 17
+    % states: angular vel., armature current
+    % output rotational angle
+    % input armature voltage
+    Ts = 0.1;
+    A = [-10 1;
+        -0.02 -2];
+    B = [0; 2];
+    C = [1 0];
+    D = [0];
+    x0 = [10;10;10;0];
+    open_loop = ss(A,B,C,D);
+    open_loop_dt = c2d(open_loop,Ts);
+    [A,B,C,D] = ssdata(open_loop_dt);
+    q=1;r=1;
+    Q=q*(C')*C;
+    R=r*eye(size(B,2));
+    [K,S,E] = dlqr(A,B,Q,R);
+    K
+    proc_dev= 0.01; 
+    meas_dev=0.001;
+    QN = proc_dev*proc_dev*eye(size(B,1));
+    RN = meas_dev*meas_dev*eye(size(C,1));
+    sys_ss = ss(A-B*K,B,C,D,Ts);
+%     [kalmf,L,P,M] = kalman(sys_ss,QN,RN);
+%     safex = [];
+%     % from perfReg.py with this system
+%     perf = 0.5.*[-1.67,-1.67,-1.67;-1.47,-1.47,-1.47];
+%     % safer region of this system to start from
+%     ini = perf;
+%     % for central chi2 FAR < 0.05
+%     th = 4.35;              % new: changed it a bit so that without attack, the residue remains below threshold.
+%     sensor_limit = 0.5*4;  % columnwise range of each y
+%     actuator_limit = 0.5*5;   % columnwise range of each u 
+    settlingTime = 13; 
+    rate = 0.55;
+    QXU = blkdiag(Q,R);
+    QWV = blkdiag(QN,RN); 
+end
+if system=="LKAS"
+    % emsoft sumana ghosh 17
+    % states: angular vel., armature current
+    % output rotational angle
+    % input armature voltage
+    Ts = 0.1;
+    A = [-10 1;
+        -0.02 -2];
+    B = [0; 2];
+    C = [1 0];
+    D = [0];
+    x0 = [10;10;10;0];
+    open_loop = ss(A,B,C,D);
+    open_loop_dt = c2d(open_loop,Ts);
+    [A,B,C,D] = ssdata(open_loop_dt);
+    q=1;r=1;
+    Q=q*(C')*C;
+    R=r*eye(size(B,2));
+    [K,S,E] = dlqr(A,B,Q,R);
+    K
+    proc_dev= 0.01; 
+    meas_dev=0.001;
+    QN = proc_dev*proc_dev*eye(size(B,1));
+    RN = meas_dev*meas_dev*eye(size(C,1));
+    sys_ss = ss(A-B*K,B,C,D,Ts);
+%     [kalmf,L,P,M] = kalman(sys_ss,QN,RN);
+%     safex = [];
+%     % from perfReg.py with this system
+%     perf = 0.5.*[-1.67,-1.67,-1.67;-1.47,-1.47,-1.47];
+%     % safer region of this system to start from
+%     ini = perf;
+%     % for central chi2 FAR < 0.05
+%     th = 4.35;              % new: changed it a bit so that without attack, the residue remains below threshold.
+%     sensor_limit = 0.5*4;  % columnwise range of each y
+%     actuator_limit = 0.5*5;   % columnwise range of each u 
+    settlingTime = 13; 
+    rate = 0.55;
+    QXU = blkdiag(Q,R);
+    QWV = blkdiag(QN,RN); 
+end
+if ~exist("open_loop_dt")
+    [Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop_dt);
+else
+    [Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop);
+end
 lqg_reg = lqg(open_loop,QXU,QWV);
-[Acd,Bcd,Ccd,Dcd]=ssdata(lqg_reg);  %K = -Ccd;
+[Acd,Bcd,Ccd,Dcd]=ssdata(lqg_reg);  % K = -Ccd;
 
-A1=[Ap1 Bp1*Ccd;Bcd*Cp1 Acd]; 
-A0=[Ap1 Bp1*Ccd;0.*Bcd*Cp1 eye(size(Acd))]; 
-eig_closed= eig(Ap1);
-constraints= [];
+A1 = [Ap1 Bp1*Ccd;Bcd*Cp1 Acd]; 
+A0 = [Ap1 Bp1*Ccd;0.*Bcd*Cp1 eye(size(Acd))]; 
+eig_closed = eig(Ap1);
+constraints = [];
 constraints_di = [];
 isCtrb = [];
-isStable =[];
+isStable = [];
 slack = 0.001;
 ctrbl = 1 ;
 unstable_count = 0;
@@ -424,13 +592,13 @@ i = 1;
 % hold on;
 while ctrbl 
     Ts=i*h;        
-    Am = A1*A0^(i-1);
+    Am = A0^(i-1)*A1;
     eig_state{i} = eig(Am);
     isCtrb(i) = rank(Am)>=rank(ctrb(Am,blkdiag(B,B)));
     ctrbl = isCtrb(i);
     max_eig = max(abs(eig_state{i}));
     min_eig = min(abs(eig_state{i}));
-    isStable(i) = max_eig<1;
+    isStable(i) = max_eig < 1;
     alpha(i) = max_eig^2-1;
 %     assign(alpha(i),0.9);   
     Bm = zeros(2.*size(B));
@@ -442,7 +610,7 @@ while ctrbl
     figure("Name","Outputs for "+num2str(Ts));
     plot(Y(:,1:2));
     legend(["y1","y2","y3"]);
-    %     P_di{i} = dlyap(Am,alpha(i)*eye(size(Am)));
+%     P_di{i} = dlyap(Am,alpha(i)*eye(size(Am)));
     Pm_di{i}=sdpvar(size(Am,1),size(Am,1));
     constraint_di=[Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
                    Pm_di{i} >= slack];
