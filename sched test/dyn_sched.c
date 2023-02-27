@@ -17,7 +17,7 @@ typedef struct task{
     int rem_time;
     int rem_job;
     // int* h_list;
-    automaton* automata;
+    // automaton* automata;
     task* (*new_task)(int id, int h, int c, int o, int rem_job, int* h_list, automaton* automata);
     } task;
 typedef struct system{
@@ -59,8 +59,8 @@ int gcd(int a, int b);
 int find_hyperperiod(task* taskset, int task_ct);
 int compare(const void* a, const void* b);
 int* scheduler(task* taskset, int task_ct);
-int* edf_scheduler(task* taskset, int task_ct);
-// int* edf_scheduler(task* taskset, int task_ct, int** chosen_pats);
+// int* edf_scheduler(task* taskset, int task_ct, int* job_ct);
+int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats);
 //main
 int main(){
     // int id;
@@ -73,6 +73,7 @@ int main(){
     // int* h_list;
     // automaton* automata;
     int task_ct = 5;
+    int job_ct =0;
     task taskset[5]={
         {1, 1, 20, 5, 0, 20, 0},// NULL, NULL},
         {2, 1, 30, 5, 0, 30, 0},// NULL, NULL},
@@ -82,17 +83,17 @@ int main(){
     };
     int chosen_pats[5][6] = {
             {1,1,1,1,1,1},
-            {2,0,2,0},
+            {1,0,1,0},
             {1,1},
-            {2,0,1},
+            {1,0,1},
             {1,1}
     };
     // int hyperperiod = find_hyperperiod(taskset, task_ct);
     clock_t start, end;
     double cpu_time_used;
     start = clock();
-    int *schedule_task, *schedule_start = edf_scheduler(taskset, task_ct);
-    // int *schedule_task, *schedule_start, *job_ct = edf_scheduler(taskset, task_ct, &chosen_pats);
+    // int *schedule_task, *schedule_start = edf_scheduler(taskset, task_ct, &job_ct);
+    int *schedule_task, *schedule_start = edf_scheduler(taskset, task_ct, &job_ct, &chosen_pats);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time: %f\n", cpu_time_used);
@@ -102,6 +103,7 @@ int main(){
     //     printf("task %d at start time: %d \n", &schedule_task[*job_ct], &schedule_start[*job_ct]);
     //     (*job_ct)--;
     // }
+    printf("job_ct: %d\n", job_ct);
 }
 
 //define functions
@@ -163,7 +165,7 @@ int** gen_pats(automaton* self, int pat_len, int** transitions){
     int* pat = (int*)malloc(sizeof(int)*pat_len);
     int len = self->pat_len;
     int min_clf_miss_idx = self->plant->max_miss-1;
-    for(int i=0; i++ ; i<self->plant->max_miss){
+    for(int i=0; i++; i < self->plant->max_miss){
         if ((min_clf_miss_idx+1)*self->mlf_dwelltimes[min_clf_miss_idx] > (i+1)*self->mlf_dwelltimes[i]){
             min_clf_miss_idx = i;
         }
@@ -232,10 +234,10 @@ int compare_tasks(const void* a, const void* b) {
 // }
 
 // edf scheduler for a set of tasks following automaton of each task
-int* edf_scheduler(task taskset[], int task_ct){
-// int* edf_scheduler(task taskset[], int task_ct, int** chosen_pats){
+// int* edf_scheduler(task taskset[], int task_ct, int* job_ct){
+int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
     // int task_ct = (int)(sizeof(taskset)/sizeof(taskset[0]));
-    int* job_ct = 0;
+    // int* job_ct = 0;
     double util = 0;
     int hyperperiod = find_hyperperiod(taskset, task_ct);
     for (int i =0 ; i<task_ct; i++){
@@ -266,7 +268,13 @@ int* edf_scheduler(task taskset[], int task_ct){
         }
         */
         int rem_job = hyperperiod/taskset[i].h;
-        taskset[i].rem_job = rem_job ;
+        taskset[i].rem_job = rem_job;
+        for (int k=0; k++; k< rem_job){
+            if(chosen_pats[i][k] == 0){
+                taskset[i].rem_job--;
+            }
+        }
+        // taskset[i].rem_job = hyperperiod/taskset[i].h; //rem_job ;
         *job_ct += taskset[i].rem_job;
         util += taskset[i].rem_job*taskset[i].c;
         // util += (double)taskset[i].c/taskset[i].h;
