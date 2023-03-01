@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
+# include <stdbool.h>
 // declare structs
 typedef struct task task;
 typedef struct system sys;
@@ -240,6 +241,8 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
     // int* job_ct = 0;
     double util = 0;
     int hyperperiod = find_hyperperiod(taskset, task_ct);
+    // measuring utility and total number of jobs for all taks
+    // yet to incorporate the automata
     for (int i =0 ; i<task_ct; i++){
         /*
         // taskset[i].automata->pat_len = hyperperiod/taskset[i].h;
@@ -269,6 +272,7 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
         */
         int rem_job = hyperperiod/taskset[i].h;
         taskset[i].rem_job = rem_job;
+        // counting and updating the no. of jobs from the chosen pattern for each task
         for (int k=0; k++; k< rem_job){
             if(chosen_pats[i][k] == 0){
                 taskset[i].rem_job--;
@@ -281,12 +285,14 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
         printf("--%d jobs to do for task %d \n", taskset[i].rem_job, taskset[i].id);
     }
     util = util/hyperperiod;
+    // judging schedulability of the taskset from utility
     if (util>1){
         printf("not scheduleable\n");
         return NULL, NULL;
     }else{
         printf("scheduleable with utilization: %f\n",util);
     }
+    // sorting the taskset in ascending order of remaining time
     qsort(taskset,  task_ct, sizeof(task), compare_tasks);
     int time = 0;
     int min_dl_idx=0;
@@ -295,26 +301,40 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
     int* schedule_task = (int*)malloc(sizeof(int)*(*job_ct));
     int* schedule_start = (int*)malloc(sizeof(int)*(*job_ct));
     // for (int i=0; i+=step ; i<hyperperiod){
+    // scheduling all tasks along the hyperperiod
     while (job_i < *job_ct && time < hyperperiod){
+        // taskwise remaining time update
         for (int i =0 ; i<task_ct; i++){
+            // update remaining time for tasks that has not yet arrived and is not scheduled
             if (taskset[i].rem_time != 1e9){
                 taskset[i].rem_time = taskset[i].h-(time % taskset[i].h);
             }
+            // when task arrives update remaining time to its deadline
             if (time == 0 || time % taskset[i].h == 0){
                 taskset[i].rem_time = taskset[i].h-(time % taskset[i].h);
+                // when task is scheduled before the deadline/arrival of new job
                 if (time == 0 || taskset[i].rem_time == 1e9){
                     ready_q[taskset[i].id] = taskset[i];
                     printf("task %d has arrived at %d\n", taskset[i].id, time);
-                }else{
+                }else{// when task is not yet scheduled before the deadline/arrival of new job
+                    // taskset[i].rem_time = taskset[i].h-(time % taskset[i].h);
                     printf("last deadline missed since time remaining: %d, but new task %d has arrived at %d\n", taskset[i].rem_time, taskset[i].id, time);
                 }
             } 
             printf("--at %d time task %d has remaining time %d\n", time, taskset[i].id, taskset[i].rem_time);
         }
+        // sorting the ready queue in ascending order of remaining time
         qsort(taskset, task_ct, sizeof(task), compare_tasks);
         min_dl_idx = 0;
-        if (taskset[min_dl_idx].rem_job > 0){
-            if (taskset[min_dl_idx].rem_time >= taskset[min_dl_idx].c && taskset[min_dl_idx].rem_job != 1e9){
+        bool can_schedule = taskset[min_dl_idx].rem_job > 0 && chosen_pats[taskset[min_dl_idx].id][(hyperperiod/taskset[min_dl_idx].h)-taskset[min_dl_idx].rem_job] != 0;
+        // checking the minimum remaining time task that can be scheduled following the pattern
+        while (!can_schedule && min_dl_idx < task_ct){
+                min_dl_idx += 1;
+                can_schedule = taskset[min_dl_idx].rem_job > 0 && chosen_pats[taskset[min_dl_idx].id][(hyperperiod/taskset[min_dl_idx].h)-taskset[min_dl_idx].rem_job] != 0;
+        }
+        // scheduling the task with minimum remaining time if permitted by pattern and increase
+        if (can_schedule){
+            if (taskset[min_dl_idx].rem_time >= taskset[min_dl_idx].c && taskset[min_dl_idx].rem_time != 1e9){
                 schedule_task[job_i] = taskset[min_dl_idx].id;
                 schedule_start[job_i] = time;
                 taskset[min_dl_idx].rem_job -= 1;
@@ -323,11 +343,11 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
                 printf("task %d, start %d, ", taskset[min_dl_idx].id, time);
                 time += taskset[min_dl_idx].c;
                 printf("end %d\n", time);
-            }else{
+            }else{// if task misses deadline then do not schedule just increase time
                 printf("at %d time task %d has missed deadline\n", time, taskset[min_dl_idx].id);
                 time += taskset[min_dl_idx].rem_time;
             }
-        }else{
+        }else{// if no task can be scheduled then idle and increate time
             printf("idle at %d\n",time++);
         }
     }
