@@ -72,7 +72,7 @@ int gcd(int a, int b);
 int find_hyperperiod(task* taskset, int task_ct);
 int compare(const void* a, const void* b);
 // int* edf_scheduler(task* taskset, int task_ct, int* job_ct);
-int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats);
+int* edf_scheduler(task taskset[], int* task_ct, int* job_ct, int** chosen_pats);
 //main
 int main(){
     // int id;
@@ -106,7 +106,7 @@ int main(){
     double cpu_time_used;
     start = clock();
     // int *schedule_task, *schedule_start = edf_scheduler(taskset, task_ct, &job_ct);
-    int *schedule_task, *schedule_start = edf_scheduler(taskset, task_ct, &job_ct, &chosen_pats);
+    int *schedule_task, *schedule_start = edf_scheduler(taskset, &task_ct, &job_ct, &chosen_pats);
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("time: %f\n", cpu_time_used);
@@ -302,11 +302,13 @@ int compare_tasks(const void* a, const void* b) {
 
 // edf scheduler for a set of tasks following automaton of each task
 // int* edf_scheduler(task taskset[], int task_ct, int* job_ct){
-int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
+int* edf_scheduler(task taskset[], int* task_count, int* job_ct, int** chosen_pats){
     // int task_ct = (int)(sizeof(taskset)/sizeof(taskset[0]));
     // int* job_ct = 0;
     double util = 0;
+    int task_ct = *task_count;
     int hyperperiod = find_hyperperiod(taskset, task_ct);
+    printf("task count: %d\n",&task_ct);
     for (int i =0 ; i<task_ct; i++){
         /*
         // taskset[i].automata->pat_len = hyperperiod/taskset[i].h;
@@ -336,7 +338,7 @@ int* edf_scheduler(task taskset[], int task_ct, int* job_ct, int** chosen_pats){
         */
         int rem_job = hyperperiod/taskset[i].h;
         taskset[i].rem_job = rem_job;
-        for (int k=0; k++; k< rem_job){
+        for (int k=0; k< rem_job; k++){
             if(chosen_pats[i][k] == 0){
                 taskset[i].rem_job--;
             }
