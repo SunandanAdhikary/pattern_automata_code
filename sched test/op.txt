@@ -16,15 +16,19 @@ inserting task id 1 at 0
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
-swapping a = task1 and b = task1 
-after swapping a = task1 and b = task1 
+swapping task1 at index 0, and task1 at index 0 
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
 heapifying index 0
-and put in ready q at 0
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+put in ready q at 0
 --at 0 time task 1 has remaining time 20
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -36,16 +40,34 @@ inserting task id 2 at 1
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 =========printed pq============= 
-swapping task2 at index 1 and task1 at index 0
-swapping a = task2 and b = task1 
-after swapping a = task1 and b = task2 
+swapping task1 at index 1, and task2 at index 0 
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+swapping task1 at index 0 and task2 at index 1
+heapifying index 1
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 =========printed pq============= 
-swapping task2 at index 1 and task1 at index 0
-heapifying index 0
-and put in ready q at 0
+heapifying index 2 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+=========printed pq============= 
+put in ready q at 0
 --at 0 time task 2 has remaining time 30
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -59,17 +81,40 @@ task id 1 with remaining time 20
 task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 =========printed pq============= 
-swapping task3 at index 2 and task1 at index 0
-swapping a = task3 and b = task1 
-after swapping a = task1 and b = task3 
+swapping task1 at index 2, and task3 at index 0 
+========printing pq============ 
+task id 3 with remaining time 60 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 3 with remaining time 60 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+min is right indx 2 
+swapping task1 at index 0 and task3 at index 2
+heapifying index 2
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 =========printed pq============= 
-swapping task3 at index 2 and task1 at index 0
-heapifying index 0
-and put in ready q at 0
+heapifying index 3 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+=========printed pq============= 
+put in ready q at 0
 --at 0 time task 3 has remaining time 60
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -85,22 +130,64 @@ task id 2 with remaining time 30
 task id 3 with remaining time 60 
 task id 4 with remaining time 40 
 =========printed pq============= 
-swapping task4 at index 3 and task1 at index 0
-swapping a = task4 and b = task1 
-after swapping a = task1 and b = task4 
+swapping task1 at index 3, and task4 at index 0 
 ========printing pq============ 
-task id 1 with remaining time 20 
+task id 4 with remaining time 40 
 task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 4 with remaining time 40 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+swapping task2 at index 0 and task4 at index 1
+heapifying index 1
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 3 
+swapping task1 at index 1 and task4 at index 3
+heapifying index 3
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
 task id 3 with remaining time 60 
 task id 4 with remaining time 40 
 =========printed pq============= 
-swapping task4 at index 3 and task1 at index 0
-heapifying index 0
-and put in ready q at 0
+heapifying index 4 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+=========printed pq============= 
+put in ready q at 0
 --at 0 time task 4 has remaining time 40
 ========printing pq============ 
-task id 1 with remaining time 20 
 task id 2 with remaining time 30 
+task id 1 with remaining time 20 
 task id 3 with remaining time 60 
 task id 4 with remaining time 40 
 =========printed pq============= 
@@ -108,15 +195,42 @@ new job of task 5 has arrived at 0 1
 new job of task 5 will execute if chosen_pats = 1 
 inserting task id 5 at 4
 ========printing pq============ 
-task id 1 with remaining time 20 
 task id 2 with remaining time 30 
+task id 1 with remaining time 20 
 task id 3 with remaining time 60 
 task id 4 with remaining time 40 
 task id 5 with remaining time 60 
 =========printed pq============= 
-swapping task5 at index 4 and task1 at index 0
-swapping a = task5 and b = task1 
-after swapping a = task1 and b = task5 
+swapping task2 at index 4, and task5 at index 0 
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 2 with remaining time 30 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 2 with remaining time 30 
+=========printed pq============= 
+min is left indx 1 
+swapping task1 at index 0 and task5 at index 1
+heapifying index 1
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 2 with remaining time 30 
+=========printed pq============= 
+min is left indx 3 
+min is right indx 4 
+swapping task2 at index 1 and task5 at index 4
+heapifying index 4
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
@@ -124,9 +238,31 @@ task id 3 with remaining time 60
 task id 4 with remaining time 40 
 task id 5 with remaining time 60 
 =========printed pq============= 
-swapping task5 at index 4 and task1 at index 0
-heapifying index 0
-and put in ready q at 0
+heapifying index 5 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 5 with remaining time 60 
+=========printed pq============= 
+put in ready q at 0
 --at 0 time task 5 has remaining time 60
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -135,249 +271,419 @@ task id 3 with remaining time 60
 task id 4 with remaining time 40 
 task id 5 with remaining time 60 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
-heapifying index 0
-min is left indx 1 
-swapping task5 at index 0 and task2 at index 1
-swapping a = task5 and b = task2 
-after swapping a = task2 and b = task5 
-swapping task5 at index 0 and task2 at index 1
-heapifying index 0 done
-heapifying index 1
-task 1, start 0, end 5
------------time: 5--------------- 
-new job of task 1 has arrived at 5 1
---at 5 time task 1 has remaining time 15
+extracting task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+task id 5 with remaining time 60 
+=========printed pq============= 
+extracted task id 1 with minimum remaining deadline (address 008E1618)
 ========printing pq============ 
 task id 5 with remaining time 60 
 task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 task id 4 with remaining time 40 
 =========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+=========printed pq============= 
+min is left indx 1 
+swapping task2 at index 0 and task5 at index 1
+heapifying index 1
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+task id 4 with remaining time 40 
+=========printed pq============= 
+min is left indx 3 
+swapping task4 at index 1 and task5 at index 3
+heapifying index 3
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 4 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+task 1, start 0, end 5
+-----------time: 5--------------- 
+new job of task 1 has arrived at 5 1
+--at 5 time task 1 has remaining time 15
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
 new job of task 2 has arrived at 5 1
 --at 5 time task 2 has remaining time 25
 ========printing pq============ 
-task id 5 with remaining time 60 
 task id 2 with remaining time 25 
-task id 3 with remaining time 60 
 task id 4 with remaining time 40 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
 =========printed pq============= 
 new job of task 3 has arrived at 5 1
 --at 5 time task 3 has remaining time 55
 ========printing pq============ 
-task id 5 with remaining time 60 
 task id 2 with remaining time 25 
-task id 3 with remaining time 55 
 task id 4 with remaining time 40 
+task id 3 with remaining time 55 
+task id 5 with remaining time 60 
 =========printed pq============= 
 new job of task 4 has arrived at 5 1
 --at 5 time task 4 has remaining time 35
 ========printing pq============ 
-task id 5 with remaining time 60 
 task id 2 with remaining time 25 
-task id 3 with remaining time 55 
 task id 4 with remaining time 35 
+task id 3 with remaining time 55 
+task id 5 with remaining time 60 
 =========printed pq============= 
 new job of task 5 has arrived at 5 1
 --at 5 time task 5 has remaining time 55
 ========printing pq============ 
+task id 2 with remaining time 25 
+task id 4 with remaining time 35 
+task id 3 with remaining time 55 
 task id 5 with remaining time 55 
-task id 2 with remaining time 25 
-task id 3 with remaining time 55 
-task id 4 with remaining time 35 
 =========printed pq============= 
-extracting task id 5 with minimum remaining deadline
+extracting task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+task id 2 with remaining time 25 
+task id 4 with remaining time 35 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
+=========printed pq============= 
+extracted task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+task id 5 with remaining time 55 
+task id 4 with remaining time 35 
+task id 3 with remaining time 55 
+=========printed pq============= 
 heapifying index 0
+========printing pq============ 
+task id 5 with remaining time 55 
+task id 4 with remaining time 35 
+task id 3 with remaining time 55 
+=========printed pq============= 
 min is left indx 1 
-swapping task4 at index 0 and task2 at index 1
-swapping a = task4 and b = task2 
-after swapping a = task2 and b = task4 
-swapping task4 at index 0 and task2 at index 1
-heapifying index 0 done
+swapping task4 at index 0 and task5 at index 1
 heapifying index 1
-task 5, start 5, end 20
------------time: 20--------------- 
-new job of task 1 has arrived at 20 1
-new job of task 1 will execute if chosen_pats = 1 
-inserting task id 1 at 3
 ========printing pq============ 
 task id 4 with remaining time 35 
-task id 2 with remaining time 25 
+task id 5 with remaining time 55 
 task id 3 with remaining time 55 
-task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 3 and task4 at index 0
-swapping a = task1 and b = task4 
-after swapping a = task4 and b = task1 
+heapifying index 2
 ========printing pq============ 
 task id 4 with remaining time 35 
-task id 2 with remaining time 25 
+task id 5 with remaining time 55 
 task id 3 with remaining time 55 
-task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 3 and task4 at index 0
-heapifying index 0
-min is left indx 1 
-swapping task4 at index 0 and task2 at index 1
-swapping a = task4 and b = task2 
-after swapping a = task2 and b = task4 
-swapping task4 at index 0 and task2 at index 1
+heapifying index 3 done
+heapifying index 2 done
+========printing pq============ 
+task id 4 with remaining time 35 
+task id 5 with remaining time 55 
+task id 3 with remaining time 55 
+=========printed pq============= 
 heapifying index 0 done
-heapifying index 1
-min is left indx 3 
-and put in ready q at 20
---at 20 time task 1 has remaining time 20
 ========printing pq============ 
 task id 4 with remaining time 35 
-task id 2 with remaining time 25 
+task id 5 with remaining time 55 
 task id 3 with remaining time 55 
-task id 1 with remaining time 20 
 =========printed pq============= 
-new job of task 2 has arrived at 20 1
---at 20 time task 2 has remaining time 10
+task 2, start 5, end 10
+-----------time: 10--------------- 
+new job of task 1 has arrived at 10 1
+--at 10 time task 1 has remaining time 10
 ========printing pq============ 
 task id 4 with remaining time 35 
-task id 2 with remaining time 10 
+task id 5 with remaining time 55 
 task id 3 with remaining time 55 
-task id 1 with remaining time 20 
 =========printed pq============= 
-new job of task 3 has arrived at 20 1
---at 20 time task 3 has remaining time 40
+new job of task 2 has arrived at 10 1
+--at 10 time task 2 has remaining time 20
 ========printing pq============ 
 task id 4 with remaining time 35 
-task id 2 with remaining time 10 
-task id 3 with remaining time 40 
-task id 1 with remaining time 20 
+task id 5 with remaining time 55 
+task id 3 with remaining time 55 
 =========printed pq============= 
-new job of task 4 has arrived at 20 1
---at 20 time task 4 has remaining time 20
+new job of task 3 has arrived at 10 1
+--at 10 time task 3 has remaining time 50
 ========printing pq============ 
-task id 4 with remaining time 20 
-task id 2 with remaining time 10 
-task id 3 with remaining time 40 
-task id 1 with remaining time 20 
+task id 4 with remaining time 35 
+task id 5 with remaining time 55 
+task id 3 with remaining time 50 
 =========printed pq============= 
-new job of task 5 has arrived at 20 1
---at 20 time task 5 has remaining time 40
+new job of task 4 has arrived at 10 1
+--at 10 time task 4 has remaining time 30
 ========printing pq============ 
-task id 4 with remaining time 20 
-task id 2 with remaining time 10 
-task id 3 with remaining time 40 
-task id 1 with remaining time 20 
+task id 4 with remaining time 30 
+task id 5 with remaining time 55 
+task id 3 with remaining time 50 
 =========printed pq============= 
-extracting task id 4 with minimum remaining deadline
+new job of task 5 has arrived at 10 1
+--at 10 time task 5 has remaining time 50
+========printing pq============ 
+task id 4 with remaining time 30 
+task id 5 with remaining time 50 
+task id 3 with remaining time 50 
+=========printed pq============= 
+extracting task id 4 with minimum remaining deadline (address 008E1678)
+========printing pq============ 
+task id 4 with remaining time 30 
+task id 5 with remaining time 50 
+task id 3 with remaining time 50 
+=========printed pq============= 
+extracted task id 4 with minimum remaining deadline (address 008E1678)
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
+=========printed pq============= 
 heapifying index 0
-min is left indx 1 
-swapping task1 at index 0 and task2 at index 1
-swapping a = task1 and b = task2 
-after swapping a = task2 and b = task1 
-swapping task1 at index 0 and task2 at index 1
-heapifying index 0 done
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
+=========printed pq============= 
 heapifying index 1
-no task/idle at 20
------------time: 21--------------- 
-new job of task 1 has arrived at 21 1
---at 21 time task 1 has remaining time 19
 ========printing pq============ 
-task id 1 with remaining time 19 
-task id 2 with remaining time 10 
-task id 3 with remaining time 40 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 2 has arrived at 21 1
---at 21 time task 2 has remaining time 9
+heapifying index 2 done
+heapifying index 1 done
 ========printing pq============ 
-task id 1 with remaining time 19 
-task id 2 with remaining time 9 
-task id 3 with remaining time 40 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 3 has arrived at 21 1
---at 21 time task 3 has remaining time 39
+no task/idle at 10
+-----------time: 11--------------- 
+new job of task 1 has arrived at 11 1
+--at 11 time task 1 has remaining time 9
 ========printing pq============ 
-task id 1 with remaining time 19 
-task id 2 with remaining time 9 
-task id 3 with remaining time 39 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 4 has arrived at 21 1
---at 21 time task 4 has remaining time 19
+new job of task 2 has arrived at 11 1
+--at 11 time task 2 has remaining time 19
 ========printing pq============ 
-task id 1 with remaining time 19 
-task id 2 with remaining time 9 
-task id 3 with remaining time 39 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 5 has arrived at 21 1
---at 21 time task 5 has remaining time 39
+new job of task 3 has arrived at 11 1
+--at 11 time task 3 has remaining time 49
 ========printing pq============ 
-task id 1 with remaining time 19 
-task id 2 with remaining time 9 
-task id 3 with remaining time 39 
+task id 3 with remaining time 49 
+task id 5 with remaining time 50 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
+new job of task 4 has arrived at 11 1
+--at 11 time task 4 has remaining time 29
+========printing pq============ 
+task id 3 with remaining time 49 
+task id 5 with remaining time 50 
+=========printed pq============= 
+new job of task 5 has arrived at 11 1
+--at 11 time task 5 has remaining time 49
+========printing pq============ 
+task id 3 with remaining time 49 
+task id 5 with remaining time 49 
+=========printed pq============= 
+extracting task id 3 with minimum remaining deadline (address 008E1658)
+========printing pq============ 
+task id 3 with remaining time 49 
+task id 5 with remaining time 49 
+=========printed pq============= 
+extracted task id 3 with minimum remaining deadline (address 008E1658)
+========printing pq============ 
+task id 5 with remaining time 49 
+=========printed pq============= 
 heapifying index 0
-min is left indx 1 
-task 1, start 21, end 26
------------time: 26--------------- 
-new job of task 1 has arrived at 26 1
---at 26 time task 1 has remaining time 14
 ========printing pq============ 
-task id 3 with remaining time 39 
-task id 2 with remaining time 9 
+task id 5 with remaining time 49 
 =========printed pq============= 
-new job of task 2 has arrived at 26 1
---at 26 time task 2 has remaining time 4
+heapifying index 1 done
 ========printing pq============ 
-task id 3 with remaining time 39 
-task id 2 with remaining time 4 
+task id 5 with remaining time 49 
 =========printed pq============= 
-new job of task 3 has arrived at 26 1
---at 26 time task 3 has remaining time 34
+task 3, start 11, end 16
+-----------time: 16--------------- 
+new job of task 1 has arrived at 16 1
+--at 16 time task 1 has remaining time 4
 ========printing pq============ 
-task id 3 with remaining time 34 
-task id 2 with remaining time 4 
+task id 5 with remaining time 49 
 =========printed pq============= 
-new job of task 4 has arrived at 26 1
---at 26 time task 4 has remaining time 14
+new job of task 2 has arrived at 16 1
+--at 16 time task 2 has remaining time 14
 ========printing pq============ 
-task id 3 with remaining time 34 
-task id 2 with remaining time 4 
+task id 5 with remaining time 49 
 =========printed pq============= 
-new job of task 5 has arrived at 26 1
---at 26 time task 5 has remaining time 34
+new job of task 3 has arrived at 16 1
+--at 16 time task 3 has remaining time 44
 ========printing pq============ 
-task id 3 with remaining time 34 
-task id 2 with remaining time 4 
+task id 5 with remaining time 49 
 =========printed pq============= 
-extracting task id 3 with minimum remaining deadline
+new job of task 4 has arrived at 16 1
+--at 16 time task 4 has remaining time 24
+========printing pq============ 
+task id 5 with remaining time 49 
+=========printed pq============= 
+new job of task 5 has arrived at 16 1
+--at 16 time task 5 has remaining time 44
+========printing pq============ 
+task id 5 with remaining time 44 
+=========printed pq============= 
+extracting task id 5 with minimum remaining deadline (address 008E1698)
+========printing pq============ 
+task id 5 with remaining time 44 
+=========printed pq============= 
+extracted task id 5 with minimum remaining deadline (address 008E1698)
+========printing pq============ 
+=========printed pq============= 
 heapifying index 0
-task 3, start 26, end 31
+========printing pq============ 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+=========printed pq============= 
+task 5, start 16, end 31
 -----------time: 31--------------- 
 new job of task 1 has arrived at 31 1
 --at 31 time task 1 has remaining time 9
 ========printing pq============ 
-task id 2 with remaining time 4 
 =========printed pq============= 
 new job of task 2 has arrived at 31 1
 --at 31 time task 2 has remaining time 29
 ========printing pq============ 
-task id 2 with remaining time 29 
 =========printed pq============= 
 new job of task 3 has arrived at 31 1
 --at 31 time task 3 has remaining time 29
 ========printing pq============ 
-task id 2 with remaining time 29 
 =========printed pq============= 
 new job of task 4 has arrived at 31 1
 --at 31 time task 4 has remaining time 9
 ========printing pq============ 
-task id 2 with remaining time 29 
 =========printed pq============= 
 new job of task 5 has arrived at 31 1
 --at 31 time task 5 has remaining time 29
 ========printing pq============ 
-task id 2 with remaining time 29 
 =========printed pq============= 
-extracting task id 2 with minimum remaining deadline
-heapifying index 0
-task 2, start 31, end 36
+no task in ready queue at 31
+-----------time: 32--------------- 
+new job of task 1 has arrived at 32 1
+--at 32 time task 1 has remaining time 8
+========printing pq============ 
+=========printed pq============= 
+new job of task 2 has arrived at 32 1
+--at 32 time task 2 has remaining time 28
+========printing pq============ 
+=========printed pq============= 
+new job of task 3 has arrived at 32 1
+--at 32 time task 3 has remaining time 28
+========printing pq============ 
+=========printed pq============= 
+new job of task 4 has arrived at 32 1
+--at 32 time task 4 has remaining time 8
+========printing pq============ 
+=========printed pq============= 
+new job of task 5 has arrived at 32 1
+--at 32 time task 5 has remaining time 28
+========printing pq============ 
+=========printed pq============= 
+no task in ready queue at 32
+-----------time: 33--------------- 
+new job of task 1 has arrived at 33 1
+--at 33 time task 1 has remaining time 7
+========printing pq============ 
+=========printed pq============= 
+new job of task 2 has arrived at 33 1
+--at 33 time task 2 has remaining time 27
+========printing pq============ 
+=========printed pq============= 
+new job of task 3 has arrived at 33 1
+--at 33 time task 3 has remaining time 27
+========printing pq============ 
+=========printed pq============= 
+new job of task 4 has arrived at 33 1
+--at 33 time task 4 has remaining time 7
+========printing pq============ 
+=========printed pq============= 
+new job of task 5 has arrived at 33 1
+--at 33 time task 5 has remaining time 27
+========printing pq============ 
+=========printed pq============= 
+no task in ready queue at 33
+-----------time: 34--------------- 
+new job of task 1 has arrived at 34 1
+--at 34 time task 1 has remaining time 6
+========printing pq============ 
+=========printed pq============= 
+new job of task 2 has arrived at 34 1
+--at 34 time task 2 has remaining time 26
+========printing pq============ 
+=========printed pq============= 
+new job of task 3 has arrived at 34 1
+--at 34 time task 3 has remaining time 26
+========printing pq============ 
+=========printed pq============= 
+new job of task 4 has arrived at 34 1
+--at 34 time task 4 has remaining time 6
+========printing pq============ 
+=========printed pq============= 
+new job of task 5 has arrived at 34 1
+--at 34 time task 5 has remaining time 26
+========printing pq============ 
+=========printed pq============= 
+no task in ready queue at 34
+-----------time: 35--------------- 
+new job of task 1 has arrived at 35 1
+--at 35 time task 1 has remaining time 5
+========printing pq============ 
+=========printed pq============= 
+new job of task 2 has arrived at 35 1
+--at 35 time task 2 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+new job of task 3 has arrived at 35 1
+--at 35 time task 3 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+new job of task 4 has arrived at 35 1
+--at 35 time task 4 has remaining time 5
+========printing pq============ 
+=========printed pq============= 
+new job of task 5 has arrived at 35 1
+--at 35 time task 5 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+no task in ready queue at 35
 -----------time: 36--------------- 
 new job of task 1 has arrived at 36 1
 --at 36 time task 1 has remaining time 4
@@ -473,15 +779,19 @@ inserting task id 1 at 0
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
-swapping a = task1 and b = task1 
-after swapping a = task1 and b = task1 
+swapping task1 at index 0, and task1 at index 0 
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
 heapifying index 0
-and put in ready q at 40
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+put in ready q at 40
 --at 40 time task 1 has remaining time 20
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -503,16 +813,34 @@ inserting task id 4 at 1
 task id 1 with remaining time 20 
 task id 4 with remaining time 40 
 =========printed pq============= 
-swapping task4 at index 1 and task1 at index 0
-swapping a = task4 and b = task1 
-after swapping a = task1 and b = task4 
+swapping task1 at index 1, and task4 at index 0 
+========printing pq============ 
+task id 4 with remaining time 40 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 4 with remaining time 40 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+swapping task1 at index 0 and task4 at index 1
+heapifying index 1
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 4 with remaining time 40 
 =========printed pq============= 
-swapping task4 at index 1 and task1 at index 0
-heapifying index 0
-and put in ready q at 40
+heapifying index 2 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 4 with remaining time 40 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 4 with remaining time 40 
+=========printed pq============= 
+put in ready q at 40
 --at 40 time task 4 has remaining time 40
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -524,8 +852,23 @@ new job of task 5 has arrived at 40 1
 task id 1 with remaining time 20 
 task id 4 with remaining time 40 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
+extracting task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 4 with remaining time 40 
+=========printed pq============= 
+extracted task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 4 with remaining time 40 
+=========printed pq============= 
 heapifying index 0
+========printing pq============ 
+task id 4 with remaining time 40 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 4 with remaining time 40 
+=========printed pq============= 
 task 1, start 40, end 45
 -----------time: 45--------------- 
 new job of task 1 has arrived at 45 1
@@ -553,8 +896,19 @@ new job of task 5 has arrived at 45 1
 ========printing pq============ 
 task id 4 with remaining time 35 
 =========printed pq============= 
-extracting task id 4 with minimum remaining deadline
+extracting task id 4 with minimum remaining deadline (address 008E1678)
+========printing pq============ 
+task id 4 with remaining time 35 
+=========printed pq============= 
+extracted task id 4 with minimum remaining deadline (address 008E1678)
+========printing pq============ 
+=========printed pq============= 
 heapifying index 0
+========printing pq============ 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+=========printed pq============= 
 no task/idle at 45
 -----------time: 46--------------- 
 new job of task 1 has arrived at 46 1
@@ -871,15 +1225,19 @@ inserting task id 1 at 0
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
-swapping a = task1 and b = task1 
-after swapping a = task1 and b = task1 
+swapping task1 at index 0, and task1 at index 0 
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
 heapifying index 0
-and put in ready q at 60
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+put in ready q at 60
 --at 60 time task 1 has remaining time 20
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -891,16 +1249,34 @@ inserting task id 2 at 1
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 =========printed pq============= 
-swapping task2 at index 1 and task1 at index 0
-swapping a = task2 and b = task1 
-after swapping a = task1 and b = task2 
+swapping task1 at index 1, and task2 at index 0 
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+swapping task1 at index 0 and task2 at index 1
+heapifying index 1
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 =========printed pq============= 
-swapping task2 at index 1 and task1 at index 0
-heapifying index 0
-and put in ready q at 60
+heapifying index 2 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+=========printed pq============= 
+put in ready q at 60
 --at 60 time task 2 has remaining time 30
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -914,17 +1290,40 @@ task id 1 with remaining time 20
 task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 =========printed pq============= 
-swapping task3 at index 2 and task1 at index 0
-swapping a = task3 and b = task1 
-after swapping a = task1 and b = task3 
+swapping task1 at index 2, and task3 at index 0 
+========printing pq============ 
+task id 3 with remaining time 60 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 3 with remaining time 60 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+min is right indx 2 
+swapping task1 at index 0 and task3 at index 2
+heapifying index 2
 ========printing pq============ 
 task id 1 with remaining time 20 
 task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 =========printed pq============= 
-swapping task3 at index 2 and task1 at index 0
-heapifying index 0
-and put in ready q at 60
+heapifying index 3 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+=========printed pq============= 
+put in ready q at 60
 --at 60 time task 3 has remaining time 60
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -947,279 +1346,346 @@ task id 2 with remaining time 30
 task id 3 with remaining time 60 
 task id 5 with remaining time 60 
 =========printed pq============= 
-swapping task5 at index 3 and task1 at index 0
-swapping a = task5 and b = task1 
-after swapping a = task1 and b = task5 
+swapping task1 at index 3, and task5 at index 0 
 ========printing pq============ 
-task id 1 with remaining time 20 
+task id 5 with remaining time 60 
 task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 0
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 2 with remaining time 30 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 1 
+swapping task2 at index 0 and task5 at index 1
+heapifying index 1
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+task id 1 with remaining time 20 
+=========printed pq============= 
+min is left indx 3 
+swapping task1 at index 1 and task5 at index 3
+heapifying index 3
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
 task id 3 with remaining time 60 
 task id 5 with remaining time 60 
 =========printed pq============= 
-swapping task5 at index 3 and task1 at index 0
-heapifying index 0
-and put in ready q at 60
+heapifying index 4 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+put in ready q at 60
 --at 60 time task 5 has remaining time 60
 ========printing pq============ 
-task id 1 with remaining time 20 
 task id 2 with remaining time 30 
+task id 1 with remaining time 20 
 task id 3 with remaining time 60 
 task id 5 with remaining time 60 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
+extracting task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+task id 2 with remaining time 30 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+task id 5 with remaining time 60 
+=========printed pq============= 
+extracted task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+=========printed pq============= 
 heapifying index 0
+========printing pq============ 
+task id 5 with remaining time 60 
+task id 1 with remaining time 20 
+task id 3 with remaining time 60 
+=========printed pq============= 
 min is left indx 1 
-swapping task5 at index 0 and task2 at index 1
-swapping a = task5 and b = task2 
-after swapping a = task2 and b = task5 
-swapping task5 at index 0 and task2 at index 1
-heapifying index 0 done
+swapping task1 at index 0 and task5 at index 1
 heapifying index 1
-task 1, start 60, end 65
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+=========printed pq============= 
+heapifying index 2
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+=========printed pq============= 
+heapifying index 3 done
+heapifying index 2 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+=========printed pq============= 
+heapifying index 0 done
+========printing pq============ 
+task id 1 with remaining time 20 
+task id 5 with remaining time 60 
+task id 3 with remaining time 60 
+=========printed pq============= 
+task 2, start 60, end 65
 -----------time: 65--------------- 
 new job of task 1 has arrived at 65 1
 --at 65 time task 1 has remaining time 15
 ========printing pq============ 
+task id 1 with remaining time 15 
 task id 5 with remaining time 60 
-task id 2 with remaining time 30 
 task id 3 with remaining time 60 
 =========printed pq============= 
 new job of task 2 has arrived at 65 1
 --at 65 time task 2 has remaining time 25
 ========printing pq============ 
+task id 1 with remaining time 15 
 task id 5 with remaining time 60 
-task id 2 with remaining time 25 
 task id 3 with remaining time 60 
 =========printed pq============= 
 new job of task 3 has arrived at 65 1
 --at 65 time task 3 has remaining time 55
 ========printing pq============ 
+task id 1 with remaining time 15 
 task id 5 with remaining time 60 
-task id 2 with remaining time 25 
 task id 3 with remaining time 55 
 =========printed pq============= 
 new job of task 4 has arrived at 65 1
 --at 65 time task 4 has remaining time 15
 ========printing pq============ 
+task id 1 with remaining time 15 
 task id 5 with remaining time 60 
-task id 2 with remaining time 25 
 task id 3 with remaining time 55 
 =========printed pq============= 
 new job of task 5 has arrived at 65 1
 --at 65 time task 5 has remaining time 55
 ========printing pq============ 
+task id 1 with remaining time 15 
 task id 5 with remaining time 55 
-task id 2 with remaining time 25 
 task id 3 with remaining time 55 
 =========printed pq============= 
-extracting task id 5 with minimum remaining deadline
+extracting task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 1 with remaining time 15 
+task id 5 with remaining time 55 
+task id 3 with remaining time 55 
+=========printed pq============= 
+extracted task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
+=========printed pq============= 
 heapifying index 0
-min is left indx 1 
-task 5, start 65, end 80
------------time: 80--------------- 
-new job of task 1 has arrived at 80 1
-new job of task 1 will execute if chosen_pats = 1 
-inserting task id 1 at 2
 ========printing pq============ 
 task id 3 with remaining time 55 
-task id 2 with remaining time 25 
-task id 1 with remaining time 20 
+task id 5 with remaining time 55 
 =========printed pq============= 
-swapping task1 at index 2 and task3 at index 0
-swapping a = task1 and b = task3 
-after swapping a = task3 and b = task1 
-========printing pq============ 
-task id 3 with remaining time 55 
-task id 2 with remaining time 25 
-task id 1 with remaining time 20 
-=========printed pq============= 
-swapping task1 at index 2 and task3 at index 0
-heapifying index 0
-min is left indx 1 
-min is left indx 1 
-swapping task3 at index 0 and task1 at index 2
-swapping a = task3 and b = task1 
-after swapping a = task1 and b = task3 
-swapping task3 at index 0 and task1 at index 2
-heapifying index 0 done
-heapifying index 2
-and put in ready q at 80
---at 80 time task 1 has remaining time 20
-========printing pq============ 
-task id 3 with remaining time 55 
-task id 2 with remaining time 25 
-task id 1 with remaining time 20 
-=========printed pq============= 
-new job of task 2 has arrived at 80 1
---at 80 time task 2 has remaining time 10
-========printing pq============ 
-task id 3 with remaining time 55 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-=========printed pq============= 
-new job of task 3 has arrived at 80 1
---at 80 time task 3 has remaining time 40
-========printing pq============ 
-task id 3 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-=========printed pq============= 
-new job of task 4 has arrived at 80 1
-new job of task 4 will execute if chosen_pats = 1 
-inserting task id 4 at 3
-========printing pq============ 
-task id 3 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-task id 4 with remaining time 40 
-=========printed pq============= 
-swapping task4 at index 3 and task3 at index 0
-swapping a = task4 and b = task3 
-after swapping a = task3 and b = task4 
-========printing pq============ 
-task id 3 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-task id 4 with remaining time 40 
-=========printed pq============= 
-swapping task4 at index 3 and task3 at index 0
-heapifying index 0
-min is left indx 1 
-swapping task3 at index 0 and task2 at index 1
-swapping a = task3 and b = task2 
-after swapping a = task2 and b = task3 
-swapping task3 at index 0 and task2 at index 1
-heapifying index 0 done
 heapifying index 1
-and put in ready q at 80
---at 80 time task 4 has remaining time 40
 ========printing pq============ 
-task id 3 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-task id 4 with remaining time 40 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
 =========printed pq============= 
-new job of task 5 has arrived at 80 1
---at 80 time task 5 has remaining time 40
+heapifying index 2 done
+heapifying index 1 done
 ========printing pq============ 
-task id 3 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 20 
-task id 4 with remaining time 40 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
 =========printed pq============= 
-extracting task id 3 with minimum remaining deadline
+task 1, start 65, end 70
+-----------time: 70--------------- 
+new job of task 1 has arrived at 70 1
+--at 70 time task 1 has remaining time 10
+========printing pq============ 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
+=========printed pq============= 
+new job of task 2 has arrived at 70 1
+--at 70 time task 2 has remaining time 20
+========printing pq============ 
+task id 3 with remaining time 55 
+task id 5 with remaining time 55 
+=========printed pq============= 
+new job of task 3 has arrived at 70 1
+--at 70 time task 3 has remaining time 50
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 55 
+=========printed pq============= 
+new job of task 4 has arrived at 70 1
+--at 70 time task 4 has remaining time 10
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 55 
+=========printed pq============= 
+new job of task 5 has arrived at 70 1
+--at 70 time task 5 has remaining time 50
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
+=========printed pq============= 
+extracting task id 3 with minimum remaining deadline (address 008E1658)
+========printing pq============ 
+task id 3 with remaining time 50 
+task id 5 with remaining time 50 
+=========printed pq============= 
+extracted task id 3 with minimum remaining deadline (address 008E1658)
+========printing pq============ 
+task id 5 with remaining time 50 
+=========printed pq============= 
 heapifying index 0
-min is left indx 1 
-swapping task4 at index 0 and task2 at index 1
-swapping a = task4 and b = task2 
-after swapping a = task2 and b = task4 
-swapping task4 at index 0 and task2 at index 1
-heapifying index 0 done
-heapifying index 1
-task 3, start 80, end 85
------------time: 85--------------- 
-new job of task 1 has arrived at 85 1
---at 85 time task 1 has remaining time 15
 ========printing pq============ 
-task id 4 with remaining time 40 
-task id 2 with remaining time 10 
-task id 1 with remaining time 15 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 2 has arrived at 85 1
---at 85 time task 2 has remaining time 5
+heapifying index 1 done
 ========printing pq============ 
-task id 4 with remaining time 40 
-task id 2 with remaining time 5 
-task id 1 with remaining time 15 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 3 has arrived at 85 1
---at 85 time task 3 has remaining time 35
+task 3, start 70, end 75
+-----------time: 75--------------- 
+new job of task 1 has arrived at 75 1
+--at 75 time task 1 has remaining time 5
 ========printing pq============ 
-task id 4 with remaining time 40 
-task id 2 with remaining time 5 
-task id 1 with remaining time 15 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 4 has arrived at 85 1
---at 85 time task 4 has remaining time 35
+new job of task 2 has arrived at 75 1
+--at 75 time task 2 has remaining time 15
 ========printing pq============ 
-task id 4 with remaining time 35 
-task id 2 with remaining time 5 
-task id 1 with remaining time 15 
+task id 5 with remaining time 50 
 =========printed pq============= 
-new job of task 5 has arrived at 85 1
---at 85 time task 5 has remaining time 35
+new job of task 3 has arrived at 75 1
+--at 75 time task 3 has remaining time 45
 ========printing pq============ 
-task id 4 with remaining time 35 
-task id 2 with remaining time 5 
-task id 1 with remaining time 15 
+task id 5 with remaining time 50 
 =========printed pq============= 
-extracting task id 4 with minimum remaining deadline
+new job of task 4 has arrived at 75 1
+--at 75 time task 4 has remaining time 5
+========printing pq============ 
+task id 5 with remaining time 50 
+=========printed pq============= 
+new job of task 5 has arrived at 75 1
+--at 75 time task 5 has remaining time 45
+========printing pq============ 
+task id 5 with remaining time 45 
+=========printed pq============= 
+extracting task id 5 with minimum remaining deadline (address 008E1698)
+========printing pq============ 
+task id 5 with remaining time 45 
+=========printed pq============= 
+extracted task id 5 with minimum remaining deadline (address 008E1698)
+========printing pq============ 
+=========printed pq============= 
 heapifying index 0
-min is left indx 1 
-no task/idle at 85
------------time: 86--------------- 
-new job of task 1 has arrived at 86 1
---at 86 time task 1 has remaining time 14
 ========printing pq============ 
-task id 1 with remaining time 14 
-task id 2 with remaining time 5 
 =========printed pq============= 
-new job of task 2 has arrived at 86 1
---at 86 time task 2 has remaining time 4
+heapifying index 1 done
 ========printing pq============ 
-task id 1 with remaining time 14 
-task id 2 with remaining time 4 
 =========printed pq============= 
-new job of task 3 has arrived at 86 1
---at 86 time task 3 has remaining time 34
+task 5, start 75, end 90
+-----------time: 90--------------- 
+new job of task 1 has arrived at 90 1
+--at 90 time task 1 has remaining time 10
 ========printing pq============ 
-task id 1 with remaining time 14 
-task id 2 with remaining time 4 
 =========printed pq============= 
-new job of task 4 has arrived at 86 1
---at 86 time task 4 has remaining time 34
+new job of task 2 has arrived at 90 1
+new job of task 2 will execute if chosen_pats = 1 
+inserting task id 2 at 0
 ========printing pq============ 
-task id 1 with remaining time 14 
-task id 2 with remaining time 4 
+task id 2 with remaining time 30 
 =========printed pq============= 
-new job of task 5 has arrived at 86 1
---at 86 time task 5 has remaining time 34
+swapping task2 at index 0, and task2 at index 0 
 ========printing pq============ 
-task id 1 with remaining time 14 
-task id 2 with remaining time 4 
+task id 2 with remaining time 30 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
 heapifying index 0
-task 1, start 86, end 91
------------time: 91--------------- 
-new job of task 1 has arrived at 91 1
---at 91 time task 1 has remaining time 9
 ========printing pq============ 
-task id 2 with remaining time 4 
+task id 2 with remaining time 30 
 =========printed pq============= 
-new job of task 2 has arrived at 91 1
---at 91 time task 2 has remaining time 29
+heapifying index 1 done
 ========printing pq============ 
-task id 2 with remaining time 29 
+task id 2 with remaining time 30 
 =========printed pq============= 
-new job of task 3 has arrived at 91 1
---at 91 time task 3 has remaining time 29
+put in ready q at 90
+--at 90 time task 2 has remaining time 30
 ========printing pq============ 
-task id 2 with remaining time 29 
+task id 2 with remaining time 30 
 =========printed pq============= 
-new job of task 4 has arrived at 91 1
---at 91 time task 4 has remaining time 29
+new job of task 3 has arrived at 90 1
+--at 90 time task 3 has remaining time 30
 ========printing pq============ 
-task id 2 with remaining time 29 
+task id 2 with remaining time 30 
 =========printed pq============= 
-new job of task 5 has arrived at 91 1
---at 91 time task 5 has remaining time 29
+new job of task 4 has arrived at 90 1
+--at 90 time task 4 has remaining time 30
 ========printing pq============ 
-task id 2 with remaining time 29 
+task id 2 with remaining time 30 
 =========printed pq============= 
-extracting task id 2 with minimum remaining deadline
+new job of task 5 has arrived at 90 1
+--at 90 time task 5 has remaining time 30
+========printing pq============ 
+task id 2 with remaining time 30 
+=========printed pq============= 
+extracting task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+task id 2 with remaining time 30 
+=========printed pq============= 
+extracted task id 2 with minimum remaining deadline (address 008E1638)
+========printing pq============ 
+=========printed pq============= 
 heapifying index 0
-task 2, start 91, end 96
+========printing pq============ 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+=========printed pq============= 
+task 2, start 90, end 95
+-----------time: 95--------------- 
+new job of task 1 has arrived at 95 1
+--at 95 time task 1 has remaining time 5
+========printing pq============ 
+=========printed pq============= 
+new job of task 2 has arrived at 95 1
+--at 95 time task 2 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+new job of task 3 has arrived at 95 1
+--at 95 time task 3 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+new job of task 4 has arrived at 95 1
+--at 95 time task 4 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+new job of task 5 has arrived at 95 1
+--at 95 time task 5 has remaining time 25
+========printing pq============ 
+=========printed pq============= 
+no task in ready queue at 95
 -----------time: 96--------------- 
 new job of task 1 has arrived at 96 1
 --at 96 time task 1 has remaining time 4
@@ -1315,15 +1781,19 @@ inserting task id 1 at 0
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
-swapping a = task1 and b = task1 
-after swapping a = task1 and b = task1 
+swapping task1 at index 0, and task1 at index 0 
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-swapping task1 at index 0 and task1 at index 0
 heapifying index 0
-and put in ready q at 100
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+put in ready q at 100
 --at 100 time task 1 has remaining time 20
 ========printing pq============ 
 task id 1 with remaining time 20 
@@ -1348,8 +1818,19 @@ new job of task 5 has arrived at 100 1
 ========printing pq============ 
 task id 1 with remaining time 20 
 =========printed pq============= 
-extracting task id 1 with minimum remaining deadline
+extracting task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+task id 1 with remaining time 20 
+=========printed pq============= 
+extracted task id 1 with minimum remaining deadline (address 008E1618)
+========printing pq============ 
+=========printed pq============= 
 heapifying index 0
+========printing pq============ 
+=========printed pq============= 
+heapifying index 1 done
+========printing pq============ 
+=========printed pq============= 
 task 1, start 100, end 105
 -----------time: 105--------------- 
 new job of task 1 has arrived at 105 1
@@ -1609,4 +2090,8 @@ new job of task 3 has arrived at 116 1
 new job of task 4 has arrived at 116 1
 --at 116 time task 4 has remaining time 4
 ========printing pq============ 
-=====
+=========printed pq============= 
+new job of task 5 has arrived at 116 1
+--at 116 time task 5 has remaining time 4
+========printing pq============ 
+=========

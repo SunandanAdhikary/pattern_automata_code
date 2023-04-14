@@ -31,7 +31,7 @@ typedef struct minheap{
     task* (*extract_min)(minheap* self);
     void (*heapify)(minheap* self, int i);
     // void (*print_pq)(minheap* self);
-    void (*swap) (task* a, task* b);
+    void (*swap) (task** a, task** b);
     } minheap;
 // declare functions
 void print_pq (minheap* self);
@@ -106,7 +106,7 @@ int main(){
     // }
 }
 
-//define functions
+// define functions
 minheap* new_minheap(int capacity){
     printf("new minheap with capacity %d \n", capacity);
     minheap* self = (minheap*)malloc(sizeof(minheap));
@@ -122,17 +122,18 @@ minheap* new_minheap(int capacity){
 }
 
 // for swapping elements
-void swap (task* a, task* b){
-    printf("swapping a = task%d and b = task%d \n", a->id, b->id);
-    void* temp = a;
+void swap (task** a, task** b){
+    printf("swapping a = task%d at %p and b = task%d at %p \n", (*a)->id, *a, (*b)->id, *b);
+    void* temp = *a;
     a = b;
     b = temp;
-    printf("after swapping a = task%d and b = task%d \n", a->id, b->id);
+    printf("after swapping a = task%d at %p and b = task%d at %p\n", (*a)->id, *a, (*b)->id, *b);
 }
 
 // for heapifying
 void heapify(minheap *self, int i){
     printf("heapifying index %d\n",i);
+    print_pq(self);
     int left = 2*i+1;
     int right = 2*i+2;
     int min = i;
@@ -144,21 +145,30 @@ void heapify(minheap *self, int i){
     }
     if (right < self->size){
         if(right >=0 && self->q[right]->rem_time < self->q[min]->rem_time && right < self->size){
-            printf("min is left indx %d \n", left);
+            printf("min is right indx %d \n", right);
             min = right;
         }
     }
-    if(left < self->size && right < self->size){
+    // if(left < self->size && right < self->size){
         if (min != i){
+            // printf("swapping task%d at index %d and task%d at index %d\n", self->q[i]->id, i, self->q[min]->id, min);
+            // swap(self->q[i], self->q[min]);
+            task* tmp = self->q[i];
+            self->q[i] = self->q[min];
+            self->q[min] = tmp;
             printf("swapping task%d at index %d and task%d at index %d\n", self->q[i]->id, i, self->q[min]->id, min);
-            swap(self->q[i], self->q[min]);
-            printf("swapping task%d at index %d and task%d at index %d\n", self->q[i]->id, i, self->q[min]->id, min);
-            printf("heapifying index %d done\n",i);
             heapify(self,min);
+            print_pq(self);
+        }else{
+            if(++i < self->size){
+                heapify(self,i);
+            }
         }
-    }else{
-        return;
-    }
+    // }else{
+    //     return;
+    // }
+    printf("heapifying index %d done\n",i);
+    // print_pq(self);
 }
 
 // for inserting
@@ -182,11 +192,16 @@ void insert(minheap* self, task* t){
         self->q[i] = t;
         printf("inserting task id %d at %d\n", self->q[i]->id, self->size-1);
         print_pq(self);
-        printf("swapping task%d at index %d and task%d at index 0\n", self->q[i]->id, i, self->q[0]->id);
-        swap(self->q[i], self->q[0]);
+        // printf("swapping task%d at index %d, address %p and task%d at index 0 address %p\n", self->q[i]->id, i, self->q[i], self->q[0]->id,self->q[0]);
+        task* tmp = self->q[i];
+        self->q[i] = self->q[0];
+        self->q[0] = tmp;
+        // swap(a,b);
+        printf("swapping task%d at index %d, and task%d at index 0 \n", self->q[i]->id, i, self->q[0]->id );
         print_pq(self);
-        printf("swapping task%d at index %d and task%d at index 0\n", self->q[i]->id, i, self->q[0]->id);
+        // printf("swapping task%d at index %d address %p and task%d at index 0 address %p\n", self->q[i]->id, i, self->q[i], self->q[0]->id, self->q[0]);
         heapify(self, 0);
+        print_pq(self);
     }
 }
 
@@ -196,15 +211,19 @@ task* extract_min(minheap* self){
     if(self->size == 0){
         printf("empty heap \n");
     }else{
-        printf("extracting task id %d with minimum remaining deadline\n", self->q[0]->id);
+        printf("extracting task id %d with minimum remaining deadline (address %p)\n", self->q[0]->id, self->q[0]);
+        print_pq(self);
         to_pop = self->q[0];
         to_del = self->q[self->size-1];
         self->size --;
-        self->q[0] = self->q[self->size];
+        self->q[0] = to_del;
         // if (to_del != NULL){
         //     free(to_del);
         // }
+        printf("extracted task id %d with minimum remaining deadline (address %p)\n", to_pop->id, to_pop);
+        print_pq(self);
         heapify(self, 0);
+        print_pq(self);
     }
     return to_pop;
 }
@@ -302,7 +321,7 @@ void edf_scheduler(task* taskset, int* task_ct, int** chosen_pats, int* job_ct, 
                         task* t = &taskset[i];
                         // printf("new job of task %d has arrived ", t->id);
                         insert(ready_q, t);
-                        printf("and put in ready q at %d\n", time);
+                        printf("put in ready q at %d\n", time);
                     }else{
                         printf("new job of task %d has arrived but not put in ready q at %d due to drop in pattern \n", taskset[i].id, time);
                     }
