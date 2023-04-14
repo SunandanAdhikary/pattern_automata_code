@@ -8,7 +8,7 @@ typedef struct system sys;
 typedef struct automaton automaton;
 
 // define structs
-//task params 
+// task params 
 typedef struct task{
     int id;
     int criticality;
@@ -85,7 +85,7 @@ int main(){
     // int* h_list;
     // automaton* automata;
     int task_ct = 5;
-    int job_ct =0;
+    int job_ct = 0;
     task taskset[5]={
         {1, 1, 20, 5, 0, 20, 0},// NULL, NULL},
         {2, 1, 30, 5, 0, 30, 0},// NULL, NULL},
@@ -95,9 +95,9 @@ int main(){
     };
     int pats[5][6] = {
             {1,1,1,1,1,1},
-            {1,0,1,0},
+            {1,1,1,1},
             {1,1},
-            {1,0,1},
+            {1,1,1},
             {1,1}
     };
     int* chosen_pats = (int*)&pats;
@@ -220,8 +220,8 @@ double pat_simulate(sys* self, int len, int* pat){
     double how_safe = self->safex-self->x0;
     double del_e = 0;
     int* x = (int*)malloc(sizeof(int)*self->state_ct);
-    for(int i=0; i++; i< len){
-
+    for(int i=0; i< len; i++){
+        
     }
     return how_safe, del_e;
 }
@@ -232,7 +232,7 @@ int** gen_pats(automaton* self, int pat_len, int** transitions){
     int* pat = (int*)malloc(sizeof(int)*pat_len);
     int len = self->pat_len;
     int min_clf_miss_idx = self->plant->max_miss-1;
-    for(int i=0; i++; i < self->plant->max_miss){
+    for(int i=0; i < self->plant->max_miss; i++){
         if ((min_clf_miss_idx+1)*self->mlf_dwelltimes[min_clf_miss_idx] > (i+1)*self->mlf_dwelltimes[i]){
             min_clf_miss_idx = i;
         }
@@ -311,21 +311,21 @@ int* edf_scheduler(task taskset[], int* task_count, int* job_ct, int** chosen_pa
     printf("task count: %d\n",&task_ct);
     for (int i =0 ; i<task_ct; i++){
         /*
-        // taskset[i].automata->pat_len = hyperperiod/taskset[i].h;
-        // int** pats = taskset[i].automata->gen_pats(taskset[i].automata->pat_len, taskset[i].automata->transitions);
-        // int pat_ct = (int)(sizeof(pats)/sizeof(pats[0]));
-        // double max_safe = 0;
-        // double max_del_e = 0;
-        // int best_pat_idx = 0;
-        // for (int j = 0; j<pat_ct; j++){
-        //     int how_safe, del_e = taskset[i].automata->plant->pat_simulate(taskset[i].automata->pat_len, pats[j]);
-        //     if (max_safe <= how_safe && max_del_e <= del_e){
-        //         max_del_e = del_e;
-        //         max_safe = how_safe;
-        //         best_pat_idx = j;
-        //     }
-        // }
-        // int* chosen_pat = pats[best_pat_idx];
+        taskset[i].automata->pat_len = hyperperiod/taskset[i].h;
+        int** pats = taskset[i].automata->gen_pats(taskset[i].automata->pat_len, taskset[i].automata->transitions);
+        int pat_ct = (int)(sizeof(pats)/sizeof(pats[0]));
+        double max_safe = 0;
+        double max_del_e = 0;
+        int best_pat_idx = 0;
+        for (int j = 0; j<pat_ct; j++){
+            int how_safe, del_e = taskset[i].automata->plant->pat_simulate(taskset[i].automata->pat_len, pats[j]);
+            if (max_safe <= how_safe && max_del_e <= del_e){
+                max_del_e = del_e;
+                max_safe = how_safe;
+                best_pat_idx = j;
+            }
+        }
+        int* chosen_pat = pats[best_pat_idx];
         */
         /*
         int* chosen_pat = chosen_pats[i];
@@ -357,7 +357,7 @@ int* edf_scheduler(task taskset[], int* task_count, int* job_ct, int** chosen_pa
         printf("scheduleable with utilization: %f\n",util);
     }
     int time = 0;
-    int i=0;
+    int i = 0;
     int job_i = 0;
     minheap *ready_q;
     ready_q->new_minheap(*job_ct);
@@ -373,6 +373,7 @@ int* edf_scheduler(task taskset[], int* task_count, int* job_ct, int** chosen_pa
             if (time == 0 || time % taskset[i].h == 0){
                 // taskset[i].rem_time = taskset[i].h-(time % taskset[i].h);
                 if (time == 0 || taskset[i].rem_time == 1e9){
+                    // if (chosen_pats[taskset[i].id][(hyperperiod/taskset[i].h)-taskset[i].rem_job] != 0){
                     if (chosen_pats[taskset[i].id][(hyperperiod/taskset[i].h)-taskset[i].rem_job] != 0){
                         ready_q->insert(ready_q, &taskset[i]);
                         printf("new job of task %d has arrived and put in ready q at %d\n", taskset[i].id, time);
@@ -384,7 +385,7 @@ int* edf_scheduler(task taskset[], int* task_count, int* job_ct, int** chosen_pa
 
                     printf("not putting new job of task %d arrived at %d in ready queue since the last deadline is missed as %d time is remaining \n", taskset[i].id, time,taskset[i].rem_time);
                 }
-            } 
+            }
             printf("--at %d time task %d has remaining time %d\n", time, taskset[i].id, taskset[i].rem_time);
         }
         // qsort(ready_q.q, task_ct, sizeof(task), compare_tasks);
