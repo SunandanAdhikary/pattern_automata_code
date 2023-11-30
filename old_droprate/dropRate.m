@@ -69,7 +69,7 @@ QXU = blkdiag(Q_1c_1,Q_2c_1);
 QWU = blkdiag(R_1c_1,R_2_1)
 
 lqg_reg=lqg(ZOH,QXU,QWU);
-[Acd,Bcd,Ccd,Dcd]=ssdata(lqg_reg) ;
+[Acd,Bcd,Ccd,Dcd]=ssdata(lqg_reg);
 
 Ic=eye(dimension);
 Z=zeros(dimension,dimension);   
