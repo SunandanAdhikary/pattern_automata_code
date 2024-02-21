@@ -2,7 +2,7 @@ clc;
 clear all;
 ops = sdpsettings('verbose',0);
 ops1 = sdpsettings('verbose',0);
-system = "cruise_control"
+system = "dcmotor_speed"
 mlfonly = 0;
 %%%%%%%%%%%%%%--Given l,epsolon,sampling period--%%%%%%%%%%%%%
 exec_pattern='1';
@@ -322,9 +322,9 @@ if system=="trajectory"
     B = [0.0050; 0.1000];
     C = [1 0];
     D = [0];
-    open_loop = ss(A,B,C,D,Ts);
+    open_loop_dt = ss(A,B,C,D,Ts);
     Ts_new = 0.2;
-    open_loop1 = d2d(open_loop,Ts_new);
+    open_loop1 = d2d(open_loop_dt,Ts_new);
     [A,B,C,D,Ts] = ssdata(open_loop1);
     Q= eye(size(A,2));
     R= eye(size(B,2));
@@ -489,13 +489,13 @@ if system=="dcmotor_speed"
     % states: angular vel., armature current
     % output rotational angle
     % input armature voltage
-    Ts = 0.1;
+    Ts = 0.01;
     A = [-10 1;
         -0.02 -2];
     B = [0; 2];
     C = [1 0];
     D = [0];
-    x0 = [10;10;10;0];
+    x0 = [0.10;1];
     open_loop = ss(A,B,C,D);
     open_loop_dt = c2d(open_loop,Ts);
     [A,B,C,D] = ssdata(open_loop_dt);
@@ -535,7 +535,7 @@ if system=="LKAS"
     B = [0; 2];
     C = [1 0];
     D = [0];
-    x0 = [10;10;10;0];
+    x0 = [10;0];
     open_loop = ss(A,B,C,D);
     open_loop_dt = c2d(open_loop,Ts);
     [A,B,C,D] = ssdata(open_loop_dt);
@@ -579,7 +579,7 @@ constraints = [];
 constraints_di = [];
 isCtrb = [];
 isStable = [];
-slack = 0.001;
+slack = 0.00001;
 ctrbl = 1 ;
 unstable_count = 0;
 h = Ts;
@@ -688,7 +688,7 @@ for i=1:size(P_di,2)
         Mu(i)=double(mum_di{i})
     end
 
-    Taud(i)= -log(Mu(i))/log(Alpha_diBar(i));                   % considering gamma_i <= 1
+    Taud(i)= log(Mu(i))/log(Alpha_diBar(i));                   % considering gamma_i <= 1
 %         Taud(i)= log(Mu(i))/abs(log(Alpha_diBar(i)));        
     gamma(i)= (Alpha_diBar(i)*((Mu(i))^(1/Taud(i))));
 %        gamma(i)= Alpha_di(i)+(log(Mu(i))/Taud(i))

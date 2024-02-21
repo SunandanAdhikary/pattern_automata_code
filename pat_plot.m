@@ -8,12 +8,12 @@ format long g
 % cruise_control, dcmotor_pos, trajectory, fuel_injection,
 % power_sys,four_car_platoon
 % }
-system = "dcmotor_speed"
+system = "suspension_control"
 %% pattern
-n = 20;
+n = 100;
 pat = ones(1,n);
 % subseq0 ='10010'
-subseq = [1 0 0 0 0 0 0 0]
+subseq = [1 0]
 zeroct = size(subseq,2)-1
 % subseq1= strrep(subseq0, '1','.1');
 % subseq= split(subseq1,'.');
@@ -456,7 +456,7 @@ if system=="suspension_control"
     % states: position, speed of vehicle, suspended mass
     % output speed
     % input force applied on the body
-    Ts = 0.08;
+    Ts = 0.04;%0.08;
     A = [0 1 0 0;
         -8 -4 8 4;
         0 0 0 1;
@@ -464,17 +464,17 @@ if system=="suspension_control"
     B = [0; 80; 20; -1120];
     C = [1 0 0 0];
     D = [0];
-    x0 = [10;10;10;0];
+    x0 = [1;0.1;1;0.02];
     open_loop = ss(A,B,C,D);
     open_loop_dt = c2d(open_loop,Ts);
     [A,B,C,D] = ssdata(open_loop_dt);
-    q=1;r=1;
+    q=0.1;r=0.005;
     Q=q*(C')*C;
     R=r*eye(size(B,2));
     [K,S,E] = dlqr(A,B,Q,R);
     K
     proc_dev= 0.01;
-    meas_dev=0.001;
+    meas_dev=0.01;
     QN = proc_dev*proc_dev*eye(size(B,1));
     RN = meas_dev*meas_dev*eye(size(C,1));
     sys_ss = ss(A-B*K,B,C,D,Ts);
@@ -586,7 +586,7 @@ A1 = [Ap1 Bp1*Ccd;Bcd*Cp1 Acd];
 A0 = [Ap1 Bp1*Ccd;0.*Bcd*Cp1 eye(size(Acd))];
 Am = A0^zeroct*A1;
 Bm = zeros(2.*size(B));
-Cm = blkdiag(Cp1,zeros(size(Ccd)));
+Cm = blkdiag(Cp1,Cp1);%zeros(size(Ccd)));
 Dm = zeros(size(Cm,1),size(Bm,2));
 eig_closed = eig(Ap1)
 % sys_ss = ss(A-B*K,zeros(size(B)),C,D,Ts);
@@ -596,42 +596,55 @@ sys_aug_ss = ss(Am,Bm,Cm,Dm,Ts);
 figure('Name','Augmented system linear sim')
 initial(sys_aug_ss,[x0;x0])
 %% simulate
+xdim = size(A,1);
+udim = size(B,2);
+ydim = size(C,1)
 x = x0
 xhat = x;
+xx = [x;xhat];
 u = -K*x0;
 y = C*x;
-r = y-C*xhat;
+yhat = C*xhat;
+r = y-yhat;
 e = x-xhat;
-
 ki = 1;
 xi = [value(x0)];
 xhati = [value(x0)];
 ui = [value(u)];
 yi = [value(y)];
+yhati = [value(yhat)];
 ri = [value(r)];
 ei = [value(e)];
 flag = 1;
 trunc = @(x,x_limit)(max(min(x,x_limit),-x_limit));
 pat_func = @(pat,ifexec,ifskip)(pat*(ifexec)+(1-pat)*ifskip);
-for i=1:n-1
+for i = 1:n-1
     %     r = y - Cp1*xhat;
-    x = Ap1*x + Bp1*u;%+normrnd(0,1/24,[2 1]);
+    x = Ap1*x + Bp1*u ; % +normrnd(0,1/24,[2 1]);
     %     if pat(i)
-    y = Cp1*x;%+normrnd(0,1/12,[1 1]);
+    y = Cp1*x ; % +normrnd(0,1/12,[1 1]);
     %     end
-    xhat = pat_func(pat(i),Ap1*xhat + Bp1*u + L*r,xhat);
+    if pat(i)
+        xhat = Ap1*xhat + Bp1*u + L*r;
+    end
+    %     xhat = pat_func(pat(i),Ap1*xhat + Bp1*u + L*r,xhat);
     %     e = x - xhat;
     %        if pat(i+1)
     %             u = pat_func(pat(i+1),-K*x,u)
     u = -K*xhat;
+    %     xx = Am*[x;xhat] + Bm*[u;u];
+    %     x = xx(1:xdim,:);
+    %     xhat = xx(xdim+1:end,:);
+    %     u = -K*xhat;
+    %     y = Cm*xx;
     %        end
     xi = [xi,value(x)];
     xhati = [xhati,value(xhat)];
     ui = [ui,value(u)];
-    yi = [yi,value(y)];
+    yi = [yi,value(y(1:ydim,:))];
+    yhati = [yhati,value(y(ydim+1:end,:))];
     %     ei = [ei,value(e)];
     %     ri = [ri,norm(r,1)];
-
 end
 % th = threshold*ones(1,n);
 figure('Name','Simulation Code')

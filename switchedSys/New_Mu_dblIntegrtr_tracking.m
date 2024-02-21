@@ -22,19 +22,28 @@ gammaStable =zeros(size(exec_pattern_states));
 gammaUnstable =zeros(size(exec_pattern_states));
 
     %%%%%%%%%%% plant %%%%%%%%%%%
-    A = [0 1;
-      0 0];
-    B = [0;
-      1];
-    C = [1 0];
-    D = 0;
-    x0 = [1;1];                         % ini state
+%     Ts = 0.1;
+%     A = [0 1;
+%       0 0];
+%     B = [0;
+%       1];
+%     C = [1 0];
+%     D = 0;
+%     x0 = [1;1];                         % ini state
+    Ts = 0.04;
+    A = [0 1 0;
+        0 0 1;
+        -6.0476 -5.2856 -0.238];
+    B = [0; 0; 2.4767];
+    C = [1 0 0];
+    D = [0];
+    x0 = [0;10;10];
     x = x0;         
     t0 = [0];                               
     t = t0;
     k=0;
     n=0;
-    h = 0.1;                              % sampling rate 
+    h = Ts;                              % sampling rate 
     states=['x','x_dot'];
     input=['u'];
     output=['y'];
@@ -118,7 +127,9 @@ gammaUnstable =zeros(size(exec_pattern_states));
                 zeros(size(Am)) -Pm{i}];
 %        constraints= [constraint,Probm<= 0];
         constraint= Probm <= 0;    
-        solvesdp(constraint);
+%         solvesdp(constraint);
+        sol = optimize(constraint);
+        sprintf("mlf sol = "+sol.info)
         P{i}=double(Pm{i});               %%--P values
         sampling_time(i)=Ts;            
         i=i+1;
