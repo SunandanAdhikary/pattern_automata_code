@@ -18,7 +18,7 @@ exec_pattern2(1)=[];
 exec_pattern_states=unique(exec_pattern2);
 l_pattern=length(exec_pattern);
 % l=l_pattern;
-l=10;
+l=5;
 epsilon = 0.364;
 exp_decay= (log(1/epsilon))/l;  % desired decay rate from (l,epsilon)
 exp_decay_dt = epsilon^(1/l);   % exp(-exp_decay); % desired decay rate in discrete domain
@@ -546,6 +546,7 @@ else
     open_loop_dt = c2d(open_loop,Ts);
     [Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop_dt);
 end
+open_loops{i} = d2d(open_loop_dt, Ts);
 lqg_reg = lqg(open_loop_dt,QXU,QWV);
 [Acd,Bcd,Ccd,Dcd] = ssdata(lqg_reg);  % K = -Ccd;
 %% creating A1, A0
@@ -557,7 +558,7 @@ constraints = [];
 constraints_di = [];
 isCtrb = [];
 isStable = [];
-slack = 0.000001;
+slack = 0.0001;
 unstable_count = 0;
 h = Ts;
 %% Plant design with sampling period=m*h
@@ -595,10 +596,6 @@ while isStable(i)%isCtrb(i)%
     Pm_di{i}=sdpvar(size(Am,1),size(Am,1));
     constraint_di=[Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
                                                                         Pm_di{i} >= slack];
-    %     constraint_di=[Am'*Pm_di{i}*Am-(1+Alpha_di(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
-    %                             -Pm_di{i} <= slack];
-    %     constraint_di=[Am'*Pm_di{i}*Am-Pm_di{i}+blkdiag(Q,Q) <= slack,...
-    %                            -Pm_di{i} <= slack];
     if isStable(i)
         fprintf("\n stable for %dh sampling time\n",i);
         howStabler(i) = max_eig(i)/exp_decay_dt;
@@ -622,24 +619,33 @@ while isStable(i)%isCtrb(i)%
     sol=optimize(constraints,[],ops);
     sol.info
     clfsolved(i) = sol.problem
-    if clfsolved(i) == 0  && mlfonly == 0 && isStable(i)
+    if clfsolved(i) == 0 && isStable(i)  %&& mlfonly == 0
         fprintf("CLF..\n");
         P = value(P_var)
         P_di{i} = P;
     else
-        %%%--LMi solution to find out Lyapunov func Slow switching--%%%
         fprintf("MLF : solving for alpha = "+num2str(alpha(i))+" for the system with "+num2str(Ts)+ " sampling period\n");
-        sol=optimize(constraint_di,[],ops);
-        sol.info
-        mlfsolved(i) = sol.problem
-        %         alpha(i) = alpha(i) + 0.01;
-        P_di{i}=value(Pm_di{i})           %%--P values for discrete sys
+%         sol=optimize(constraint_di,[],ops);
+%         sol.info
+%         mlfsolved(i) = sol.problem
+%         %         alpha(i) = alpha(i) + 0.01;
+%         P_di{i}=value(Pm_di{i})           %%--P values for discrete sys
     end
     Alpha_di(i) = value(alpha(i));
     %     Alpha_di(i) = -min(eig(blkdiag(Q,Q)))/max(eig(P_di{i}));% Q+K'*B'*A+A'*B*K
     Alpha_diBar(i)=1+Alpha_di(i);
     i=i+1;
     Ts=i*h;
+% --------------update feedback gains?-------------------------- %
+%     open_loops{i} = d2d(open_loop_dt, Ts);
+%     [Ap1,Bp1,Cp1,Dp1] = ssdata(open_loops{i});
+%     lqg_reg = lqg(open_loops{i},QXU,QWV);
+%     [Acd,Bcd,Ccd,Dcd] = ssdata(lqg_reg);  % K = -Ccd;
+%     %% creating A1, A0
+%     % Ccd = -K
+%     A1 = [Ap1 Bp1*Ccd;Bcd*Cp1 Acd];
+%     A0 = [Ap1 Bp1*Ccd;0.*Bcd*Cp1 eye(size(Acd))];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Am = A0^(i-1)*A1;
     eig_state{i} = eig(Am);
     isCtrb(i) = rank(Am) >= rank(ctrb(Am,blkdiag(B,B)));
@@ -647,7 +653,7 @@ while isStable(i)%isCtrb(i)%
     max_eig(i) = max(abs(eig_state{i}));
     min_eig = min(abs(eig_state{i}));
     isStable(i) = max_eig(i) < 1;
-    if i > 5
+    if i > 10
         break;
     end
 end
@@ -655,21 +661,30 @@ end
 % hold off;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % p=1;q=1;
-for i=1:size(P_di,2)
-    mum_di{i}=sdpvar(1,1);
-    for j=1:size(P_di,2)
-%                constraints = [constraints, P{i}-mum{i}*eye(size(P{j}))*P{j}<= 0,mum{i}>1];
-        constraints_di = [constraints_di,...
-            P_di{i}-mum_di{i}*eye(size(P_di{j}))*P_di{j} <= 0,...
-                                            mum_di{i}-2>=slack] ;
-        %         mu(j)=(det(P{i}/P{j})^(1/size(P{i},1)));
+for i=1:size(Pm_di,2)
+    mum_di{i}= howStabler(i); %sdpvar(1,1);
+    for j=1:size(Pm_di,2)
+        if clfsolved(i) == 1  || mlfonly == 1
+            constraints_di = [constraints_di,...
+                Pm_di{i}-mum_di{i}*eye(size(Pm_di{j}))*Pm_di{j} <= 0,...
+                                                               mum_di{i} >= 1] ;
+        end
     end
 end
-%%%%%%%%%%%%--Solving LMI to find out Mu--%%%%%%%%%%%%%%
-fprintf("mu derivation by cs...")
+%%%%%%%%%%%%--Solving LMI to find out P--%%%%%%%%%%%%%%
+fprintf("mlf derivation by cs...")
 % check(constraints_di);
-sol1 = optimize(constraints_di,[],ops);
-musolved = sol1.problem
+% sol1 = optimize(constraints_di,[],ops);
+% musolved = sol1.problem
+sol = optimize(constraints_di,[],ops);
+sol.info
+for i=1:size(Pm_di,2)
+    if clfsolved(i) == 1  || mlfonly == 1
+        mlfsolved(i) = sol.problem
+        %         alpha(i) = alpha(i) + 0.01;
+        P_di{i}=value(Pm_di{i})           %%--P values for discrete sys
+    end
+end
 p=1;q=1;
 gammaStable = [];
 gammaLessstable = [];
@@ -678,7 +693,7 @@ gammaUnstable=[];
 for i=1:size(P_di,2)
     if clfsolved(end) == 0
         Mu(i) = 1+slack*100;
-    elseif mlfsolved(end) == 0 && musolved == 0
+    elseif mlfsolved(end) == 0
         Mu(i) = howStabler(i);%double(mum_di{i})
     end
 
@@ -686,7 +701,8 @@ for i=1:size(P_di,2)
     %         Taud(i)= log(Mu(i))/abs(log(Alpha_diBar(i)));
     gamma(i)= log(Alpha_diBar(i)*((Mu(i))^(1/Taud(i))));
     %        gamma(i)= Alpha_di(i)+(log(Mu(i))/Taud(i))
-    if(isStabler(i))
+%     if(isStabler(i))
+    if(howStabler(i) >= 1)
         gammaStable(p) = gamma(i);      %%--gamma_plus
         %          gammaStable(p)= (gamma_eig(i));
         p=p+1;
@@ -705,33 +721,12 @@ if(~isempty(gammaLessstable)) && (~isempty(gammaStable))
     % T_minus (dwelling time in stable sys)/T_plus (dwelling time in unstable sys)
 else
     if isempty(gammaStable)
-        fprintf("All are less controllable modes than desired.\n")
+        fprintf("All are less stable modes than desired.\n")
     end
     if isempty(gammaLessstable)
-        fprintf("All are more controllable modes than desired.\n")
+        fprintf("All are more stable modes than desired.\n")
     end
 end
-%% deriving dwell times
-constraints1 =[];
-dwell_times= sdpvar(1,size(closed_loops,2));
-lastone = sdpvar(1,1);
-assign(lastone,0);
-totaltime = sdpvar(1,1);
-assign(totaltime,1);
-for i=1:size(P_di,2)
-    %     dwell_times(i) = sdpvar(1,1)
-    %     if solved1 == 0
-    constraints1 = [constraints1, dwell_times(i) >= Taud(i)];
-    %     end
-    lastone = lastone + gamma(i)*dwell_times(i);
-    totaltime= totaltime + dwell_times(i);
-end
-constraints1 = [constraints1, lastone <= log(exp_decay_dt)*totaltime, totaltime >= h];
-fprintf("deriving dwell times...\n")
-sol2 = optimize(constraints1,lastone,ops1);
-sol2.info
-solved2 = sol2.problem
-dwell_durations = value(dwell_times);
 % %%%%%%%%%%%%%%%%%%%%%%%%--drop rate calculation--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % beta_1 = max(abs(eig(A1)))^2
 % beta_0 = max(abs(eig(Ap1)))^2
@@ -830,13 +825,13 @@ for i=1:nn
 end
 Self_Loop_Count=Count';
 Min_Dwell_Time=Taud';
-Dwell_Time = dwell_durations(:,1:nn)';
-Mu_Val=Mu(:,1:nn)';
+% Dwell_Time = dwell_durations(:,1:nn)';
+Mu_Val= Mu(:,1:nn)';
 Alpha_val=Alpha_diBar(:,1:nn)';
 HowStable=howStabler(:,1:nn)';
 % Gamma=log(gamma_eig');
 Gamma=log(gamma(:,1:nn)');
-T=table(Sampling_Time',Self_Loop_Count,Min_Dwell_Time,Dwell_Time,Mu_Val,Alpha_val,HowStable)
+T=table(Sampling_Time',Self_Loop_Count,Min_Dwell_Time,Mu_Val,Alpha_val,HowStable)
 exp_decay_dt
 exp_decay
 DwellingRatio
