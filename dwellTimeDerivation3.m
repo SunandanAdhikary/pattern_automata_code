@@ -3,12 +3,10 @@ clear all;
 ops = sdpsettings('verbose',1);
 ops1 = sdpsettings('verbose',1);
 % { systems
-% batch_reactor, water_treatment, temp_ctrl, acc_platoon_pf,
-% acc_platoon_tplf, %LKAS%, dcmotor_speed, suspension_control,
+% %LKAS%, dcmotor_speed, suspension_control, esp,
 % cruise_control, dcmotor_pos, trajectory, fuel_injection,
-% power_sys,four_car_platoon
 % }
-system = "suspension_control"
+system = "fuel_injection"
 mlfonly = 1;
 %% Given l,epsolon,sampling period
 exec_pattern='1';
@@ -27,261 +25,12 @@ i=1;
 cnt=6;
 horizon=100;
 %%  plants 
-% if system=="batch_reactor"
-%     A = [1.38 0.2077 6.715 5.676;
-%         0.5814 4.29 0 0.675;
-%         1.067 4.273 6.654 5.893;
-%         0.048 4.273 1.343 -2.104];
-%     dim = size(A,1);
-%     B = [0 0;5.679 0;1.136 -3.146;1.136 0];
-%     C = [1 0 1 -1;0 1 0 0];
-%     D = zeros(size(C,1),size(B,2));
-%     Ts = 0.1;
-%     %     Ts_new =0.05;
-%     sys = ss(A,B,C,D);
-%     sys_d = c2d(sys,Ts);
-%     %     sysd2 = d2d(sys_d,Ts_new);
-%     [A,B,C,D,Ts] = ssdata(sys_d);
-%     open_loop = ss(A,B,C,D,Ts);
-%     [A,B,C,D] = ssdata(open_loop);
-%     eig_open= eig(A);
-%     Q= eye(size(A,2));
-%     R= 0.05*eye(size(B,2));
-%     proc_dev= 0.001; meas_dev=0.0001;
-%     QN = eye(size(B,1)).*proc_dev^2*(B*B');
-%     RN = eye(size(C,1)).*meas_dev^2;
-%     QXU = blkdiag(Q,R);
-%     % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-%     QWV = blkdiag(QN,RN);
-%     x0 = [10;0;0.1;0];
-% end
-if system=="water_treatment"
-    A = [-0.138   0         0;
-        0.006664 -0.006664  0;
-        0         0.002216 -0.002216];
-    dim = size(A,1);
-    B = [0.1328 0 0;0 0 0;0 0 0];
-    C = [0 0 1];
-    D = zeros(size(C,1),size(B,2));
-    Ts = 0.1;
-    Ts_new =0.05;
-    sys = ss(A,B,C,D);
-    sys_d = c2d(sys,Ts);
-    sysd2 = d2d(sys_d,Ts_new);
-    [A,B,C,D,Ts] = ssdata(sysd2);
-    open_loop = ss(A,B,C,D,Ts);
-    [A,B,C,D] = ssdata(open_loop);
-    eig_open= eig(A);
-    Q= eye(size(A,2));
-    R= 0.05*eye(size(B,2));
-    proc_dev= 0.001; meas_dev=0.0001;
-    QN = eye(size(B,1)).*proc_dev^2*(B*B');
-    RN = eye(size(C,1)).*meas_dev^2;
-    QXU = blkdiag(Q,R);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    QWV = blkdiag(QN,RN);
-    x0 = [10;0;0.1];
-end
-if system=="temp_ctrl"
-    A=[-0.11 0.1;0 -50];
-    B=[0;-50];
-    C=[1 0];
-    D=[0];
-    Ts=0.5;
-    Ts_new =0.05;
-    sys = ss(A,B,C,D);
-    sys_d = c2d(sys,Ts);
-    sysd2 = d2d(sys_d,Ts_new);
-    [A,B,C,D,Ts] = ssdata(sysd2);
-    open_loop = ss(A,B,C,D,Ts);
-    [A,B,C,D] = ssdata(open_loop);
-    eig_open= eig(A);
-    Q= eye(size(A,2));
-    R= 0.05*eye(size(B,2));
-    proc_dev= 0.001; meas_dev=0.0001;
-    QN = eye(size(B,1)).*proc_dev^2*(B*B');
-    RN = eye(size(C,1)).*meas_dev^2;
-    QXU = blkdiag(Q,R);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    QWV = blkdiag(QN,RN);
-    x0 = [10;0];
-    safex = [-30,-30;30,30];
-end
-if system=="acc_platoon_pf"
-    N = 3; %excluding leader
-    tau = 0.5; %inertial delay of vehicle longitudinal dynamics
-    d = 20; %desired spacing d_{i,i-1} in m
-    veh_len = 4; %in m
-    A = [0 1 0;
-        0 0 1;
-        0 0 -1/tau];
-    dim = size(A,1);
-    B = [0;0;1/tau];
-    C = eye(dim);
-    D = zeros(size(C,1),size(B,2));
-    Ts = 0.1;
-    Ts_new =0.05;
-    sys = ss(A,B,C,D);
-    sys_d = c2d(sys,Ts);
-    sysd2 = d2d(sys_d,Ts_new);
-    [A,B,C,D,Ts] = ssdata(sysd2);
-    L = [0	 0	0;
-        -1	 1	0;
-        0	-1	1];
-    P = [1	 0	0;
-        0	 0	0;
-        0	 0	0];
-    Ac = kron(eye(N),A);
-    Bc = kron(L+P,B);
-    Cc = zeros(N,dim*N);
-    for ii = 1:N
-        Cc(ii,(ii-1)*dim+1) = 1;
-    end
-    Dc = zeros(size(Cc,1),size(Bc,2));
-    x0=[];
-    for jj=1:N
-        x0 = [x0;(N-jj+1)*veh_len+(N-jj+1)*d;20;0];
-    end
-    open_loop = ss(Ac,Bc,Cc,Dc,Ts);
-    [A,B,C,D] = ssdata(open_loop);
-    eig_open= eig(Ac);
-    Q= eye(size(A,2));
-    R= 0.05*eye(size(B,2));
-    proc_dev= 0.001; meas_dev=0.0001;
-    QN = eye(size(B,1)).*proc_dev^2*(B*B');
-    RN = eye(size(C,1)).*meas_dev^2;
-    QXU = blkdiag(Q,R);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    QWV = blkdiag(QN,RN);
-end
-if system=="acc_platoon_tplf"
-    N = 3; % excluding leader
-    tau = 0.5; % inertial delay of vehicle longitudinal dynamics
-    d = 20; % desired spacing d_{i,i-1} in m
-    veh_len = 4; % in m
-    A = [0 1 0;
-        0 0 1;
-        0 0 -1/tau];
-    dim = size(A,1);
-    B = [0;0;1/tau];
-    C = eye(dim);
-    D = zeros(size(C,1),size(B,2));
-    Ts = 0.1;
-    Ts_new =0.05;
-    sys = ss(A,B,C,D);
-    sys_d = c2d(sys,Ts);
-    sysd2 = d2d(sys_d,Ts_new);
-    [A,B,C,D,Ts] = ssdata(sysd2);
-    L = [0	 0	0;
-        -1	 1	0;
-        -1	-1	2];
-    P = [1	0	0;
-        0	1	0;
-        0	0	1];
-    Ac = kron(eye(N),A);
-    Bc = kron(L+P,B);
-    Cc = zeros(N,dim*N);
-    for ii = 1:N
-        Cc(ii,(ii-1)*dim+1) = 1;
-    end
-    Dc = zeros(size(Cc,1),size(Bc,2));
-    x0=[];
-    for jj=1:N
-        x0 = [x0;(N-jj+1)*veh_len+(N-jj+1)*d;20;0];
-    end
-    open_loop = ss(Ac,Bc,Cc,Dc,Ts);
-    [A,B,C,D] = ssdata(open_loop);
-    eig_open= eig(Ac);
-    Q= eye(size(A,2));
-    R= 0.0000000005*eye(size(B,2));
-    proc_dev= 0.1; meas_dev=0.1;
-    QN = eye(size(B,1)).*proc_dev^2*(B*B');
-    RN = eye(size(C,1)).*meas_dev^2;
-    QXU = blkdiag(Q,R);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    QWV = blkdiag(QN,RN);
-end
-if system=="four_car_platoon"
-    % states: position and velocities of 4 vehicles
-    % inputs: velocities
-    % output: positions
-    Ts = 0.1;
-    A =[1.10517091807565,0.0110517091807565,0,0,0,0,0,0;0,1.10517091807565,0,0,0,0,0,0;0,0,1.10517091807565,0.0110517091807565,0,0,0,0;0,0,0,1.10517091807565,0,0,0,0;0,0,0,0,1.10517091807565,0.0110517091807565,0,0;0,0,0,0,0,1.10517091807565,0,0;0,0,0,0,0,0,1.10517091807565,0.0110517091807565;0,0,0,0,0,0,0,1.10517091807565];
-    B =[5.34617373191714e-05,0,0,0;0.0105170918075648,0,0,0;5.34617373191714e-05,-5.34617373191714e-05,0,0;0.0105170918075648,-0.0105170918075648,0,0;0,5.34617373191714e-05,-5.34617373191714e-05,0;0,0.0105170918075648,-0.0105170918075648,0;0,0,5.34617373191714e-05,-5.34617373191714e-05;0,0,0.0105170918075648,-0.0105170918075648];
-    C =[1,0,0,0,0,0,0,0;0,0,1,0,0,0,0,0;0,0,0,0,1,0,0,0;0,0,0,0,0,0,1,0];
-    D =zeros(size(C,1),size(B,2));
-    actuator_limit = [10;10;10;10];
-    sensor_limit = [20;20;20;20];
-    safex = [-20,-10,-20,-10,-20,-10,-20,-10;20,10,20,10,20,10,20,10];
-    Q = C'*C;
-    R = B'*B;
-    open_loop = ss(A,B,C,D,Ts);
-    Ts_new =0.03;
-    open_loop = d2d(open_loop,Ts_new);
-    [A,B,C,D,Ts] = ssdata(open_loop);
-    x0 = [0;10;20;20;30;30;40;40];
-    %     [K,S,E]=dlqr(A,B,Q,R);
-    %     sys_d =ss(A-B*K,B,C,D,Ts);
-    %     L = [7.38472324606530e-09	1.10767378478111e-08	-3.69178068993179e-09	-2.35766404514692e-13;...
-    %         -8.06607123878028e-08	-1.20987484468706e-07	4.03243462966293e-08	2.45231890733761e-12;...
-    %         1.10767378620785e-08	2.21532418194634e-08	-1.47682827951273e-08	3.69154491818929e-09;...
-    %         -1.20987484656173e-07	-2.41972543487752e-07	1.61309378729129e-07	-4.03218939403918e-08;...
-    %         -3.69178073241593e-09	-1.47682827566559e-08	2.21530060221851e-08	-1.47685185520782e-08;...
-    %         4.03243467777148e-08	1.61309378236735e-07	-2.41970090967650e-07	1.61311830983905e-07;...
-    %         -2.35746720559148e-13	3.69154491801782e-09	-1.47685185240281e-08	1.84614611047725e-08;...
-    %         2.45206180642458e-12	-4.03218938420706e-08	1.61311830610115e-07	-2.01648197004208e-07];
-    perf = 0.1.*safex;
-    threshold =4.35;
-    uatkon=[1];   % attack on which u
-    yatkon=[1];   % attack on which y
-    rate =0.5;
-    proc_dev= 0.1; meas_dev=0.1;
-    QN = eye(size(B,1)).*proc_dev^2*(B*B');
-    RN = eye(size(C,1)).*meas_dev^2;
-    QXU = blkdiag(Q,R);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    QWV = blkdiag(QN,RN);
-end
-if system=="power_sys"
-    Ts =1;
-    A = [0.66 0.53;
-        -0.53 0.13];
-    B = [0.34;    %B1=Bp1
-        0.53];
-    C = eye(2);
-    %   L=[0.36 0.27;  -0.31 0.08];
-    D = [0 ;
-        0];
-
-    x0 = [1;1];                             % ini state
-    x = x0;
-    t0 = [0];
-    t = t0;
-    k=0;
-    n=0;
-    open_loop = ss(A,B,C,D,Ts);
-    eig_open= eig(A);
-    %     eig_openZOH=eig(Ap1);
-    Q_1c_1=10^3*(C'*C)
-    Q_12c_1=[0;0]
-    Q_2c_1=10^-4;
-    R_1c_1=0.005*(B*B');
-    R_2_1=0.005*eye(2);
-    p=100;
-    %K= [0.0556 0.3306];
-    %A1= (Ap1-Bp1*K);
-    QXU = blkdiag(Q_1c_1,Q_2c_1);
-    % QXU=[Q_1c_1 Q_12c_1;Q_12c_1' Q_2c_1];
-    dimension = size(A,1)
-    QWV = blkdiag(R_1c_1,R_2_1)
-    % QWV=[R_1c_1 zeros(dimension,1);zeros(1,dimension) R_2_1]
-end
 % fuel_injection(Modeling and Control of an Engine Fuel Injection System)--in ECM ECU
 if system == "fuel_injection"
     % states:
     % inputs: inlet valve air flow, combustion torque
     % output: AFR
-    Ts = 0.01;
+    Ts = 0.005;
     Ts_new = 0.01;
     A = [0.18734,0.13306,0.10468;
         0.08183,0.78614,-0.54529;
@@ -325,14 +74,14 @@ if system == "fuel_injection"
     QWV = blkdiag(QN,RN);
 end
 if system=="trajectory"
-    Ts = 0.01;
+    Ts = 0.1;
     A = [1.0000    0.1000; 0    1.0000];
     B = [0.0050; 0.1000];
     C = [1 0];
     D = [0];
     open_loop_dt = ss(A,B,C,D,Ts);
-%     Ts_new = 0.2;
-%     open_loop1 = d2d(open_loop,Ts_new);
+    Ts_new = 2*0.05;
+    open_loop_dt = d2d(open_loop_dt,Ts_new);
     [A,B,C,D,Ts] = ssdata(open_loop_dt);
     Q= eye(size(A,2));
     R= eye(size(B,2));
@@ -358,7 +107,7 @@ if system=="dcmotor_pos"
     % states: rotational ang., angular vel., armature current
     % output rotational angle
     % input armature voltage
-    Ts = 0.02
+    Ts = 0.02;
     % ctms
     J = 3.2284E-6;
     b = 3.5077E-6;
@@ -414,7 +163,7 @@ if system=="cruise_control"
     % output speed
     % input throttle angle
 %     Ts = 0.04;
-    Ts = 0.02;
+    Ts = 0.005;
     A = [0 1 0;
         0 0 1;
         -6.0476 -5.2856 -0.238];
@@ -457,7 +206,7 @@ if system=="suspension_control"
     % states: position, speed of vehicle, suspended mass
     % output speed
     % input force applied on the body
-    Ts = 0.04;
+    Ts = 3*0.04;
 %     Ts = 0.08;
     A = [0 1 0 0;
         -8 -4 8 4;
@@ -535,6 +284,41 @@ if system=="dcmotor_speed"
     QXU = blkdiag(Q,R);
     QWV = blkdiag(QN,RN);
 end
+%% electronic stability program/vehicle lateral dynamic control(skip2secure,same as early)-- in Electronic Stability Program ECU
+if system=="esp"
+    Ts=0.04;
+    A = [0.4450 -0.0458;1.2939 0.4402];
+    B = [0.0550;4.5607];
+    C = [0 1];
+    D = [0];
+    open_loop_dt = ss(A,B,C,D,Ts);
+    open_loop = d2c(open_loop_dt);
+    Ts_new = 0.01;
+    open_loop_dt = d2d(open_loop_dt,Ts_new);
+    [A,B,C,D,Ts] = ssdata(open_loop_dt);
+    p = 0.00001;
+    Q = p*(C'*C);
+    R = 0.000001;
+    [K,S,E] = dlqr(A,B,Q,R);
+    sys_ss =ss(A-B*K,B,C,D,Ts_new);
+    qweight= 1;
+    rweight = 1;
+    proc_dev= 0.001; meas_dev=0.00001;
+    QN = 5000000*eye(size(B,1));
+    RN = 10*eye(1);
+%     [kalmf,L,P,M] = kalman(sys_ss,QN,RN,Ts_new);
+    % K = [-0.0987 0.1420];
+    L = [-0.0390;0.4339];
+    settling_time = 6;
+    safex=[-1,-2;1,2];
+    ini= 0.2.*safex;
+    perf=0.1.*safex;
+    sensorRange = [-2.5;2.5] ;     % columnwise range of each y
+    actuatorRange = [-0.8125;0.8125]; % columnwise range of each u
+    x0 = ini(1,:)';
+    QXU = blkdiag(Q,R);
+    QWV = blkdiag(QN,RN);
+end
 
 if exist("open_loop_dt")
     [Ap1,Bp1,Cp1,Dp1] = ssdata(open_loop_dt);
@@ -601,7 +385,7 @@ while isStable(i)%isCtrb(i)%
         howStabler(i) = max_eig(i)/exp_decay_dt;
         isStabler(i) = howStabler(i) >= 1;
         if isStabler(i)
-            fprintf("\n %f times stabler than desired for %dh sampling time\n",howStabler(i),i);
+            fprintf("\n %f times LESS stabler than desired for %dh sampling time\n",howStabler(i),i);
         end
         constraints = [constraints, Am'*P_var*Am-(1+alpha(i))*eye(size(Am))*P_var <= slack];
     else
@@ -662,12 +446,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % p=1;q=1;
 for i=1:size(Pm_di,2)
-    mum_di{i}= howStabler(i); %sdpvar(1,1);
+%     if howStabler(i)>1
+%         mum_di{i}= howStabler(i)*0.9; %sdpvar(1,1);
+%     else
+        mum_di{i} =1+slack;
+%     end
     for j=1:size(Pm_di,2)
         if clfsolved(i) == 1  || mlfonly == 1
             constraints_di = [constraints_di,...
-                Pm_di{i}-mum_di{i}*eye(size(Pm_di{j}))*Pm_di{j} <= 0,...
-                                                               mum_di{i} >= 1] ;
+                Pm_di{i}-mum_di{i}*eye(size(Pm_di{j}))*Pm_di{j} <= slack];%,...
+%                                                                mum_di{i} >= 1] ;
         end
     end
 end
@@ -691,12 +479,7 @@ gammaLessstable = [];
 gammaUnstable=[];
 %%%%%%%%%%%--Gamma,Taud calculation--%%%%%%%%%%%%%
 for i=1:size(P_di,2)
-    if clfsolved(end) == 0
-        Mu(i) = 1+slack*100;
-    elseif mlfsolved(end) == 0
-        Mu(i) = howStabler(i);%double(mum_di{i})
-    end
-
+    Mu(i) = mum_di{i};
     Taud(i)= -log(Mu(i))/log(Alpha_diBar(i));  % considering gamma_i <= 1
     %         Taud(i)= log(Mu(i))/abs(log(Alpha_diBar(i)));
     gamma(i)= log(Alpha_diBar(i)*((Mu(i))^(1/Taud(i))));
@@ -716,7 +499,8 @@ end  % end for
 %%%%%%%%%%%%%%--Values derived--%%%%%%%%%%%%%%%
 DwellingRatio = 1;
 if(~isempty(gammaLessstable)) && (~isempty(gammaStable))
-    DwellingRatio= ceil((log(max(gammaLessstable))+log(exp_decay_dt))/(-log(max(gammaStable))+log(exp_decay_dt)));
+%     DwellingRatio= ceil((log(max(gammaLessstable))+log(exp_decay_dt))/(-log(max(gammaStable))+log(exp_decay_dt)));
+    DwellingRatio= ceil((max(gammaLessstable)+log(exp_decay_dt))/(-(max(gammaStable))+log(exp_decay_dt)));
     % DwellingRatio= ceil((((max(gammaUnstable)))+(exp_decay))/(((max(gammaStable))))-(exp_decay));
     % T_minus (dwelling time in stable sys)/T_plus (dwelling time in unstable sys)
 else
