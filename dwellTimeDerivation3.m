@@ -6,7 +6,7 @@ ops1 = sdpsettings('verbose',1);
 % %LKAS%, dcmotor_speed, suspension_control, esp,
 % cruise_control, dcmotor_pos, trajectory, fuel_injection,
 % }
-system = "fuel_injection"
+system = "esp"
 mlfonly = 1;
 %% Given l,epsolon,sampling period
 exec_pattern='1';
@@ -206,7 +206,7 @@ if system=="suspension_control"
     % states: position, speed of vehicle, suspended mass
     % output speed
     % input force applied on the body
-    Ts = 3*0.04;
+    Ts = 0.04;
 %     Ts = 0.08;
     A = [0 1 0 0;
         -8 -4 8 4;
@@ -289,7 +289,7 @@ if system=="esp"
     Ts=0.04;
     A = [0.4450 -0.0458;1.2939 0.4402];
     B = [0.0550;4.5607];
-    C = [0 1];
+    C = [1 0];%[0 1];
     D = [0];
     open_loop_dt = ss(A,B,C,D,Ts);
     open_loop = d2c(open_loop_dt);
@@ -299,7 +299,7 @@ if system=="esp"
     p = 0.00001;
     Q = p*(C'*C);
     R = 0.000001;
-    [K,S,E] = dlqr(A,B,Q,R);
+    [K,S,E] = dlqr(A,B,Q,R)
     sys_ss =ss(A-B*K,B,C,D,Ts_new);
     qweight= 1;
     rweight = 1;
@@ -332,7 +332,9 @@ else
 end
 open_loops{i} = d2d(open_loop_dt, Ts);
 lqg_reg = lqg(open_loop_dt,QXU,QWV);
-[Acd,Bcd,Ccd,Dcd] = ssdata(lqg_reg);  % K = -Ccd;
+[Acd,Bcd,Ccd,Dcd] = ssdata(lqg_reg);  % 
+K = -Ccd;
+L = Bcd;
 %% creating A1, A0
 % Ccd = -K
 A1 = [Ap1 Bp1*Ccd;Bcd*Cp1 Acd];
@@ -367,18 +369,36 @@ while isStable(i)%isCtrb(i)%
     isStable(i) = max_eig(i) < 1;
     alpha(i) = max_eig(i)^2-1;
     %     assign(alpha(i),0.9);
-    Bm = zeros(2.*size(B));
+    Bm = [Bp1;Bp1];%zeros(2.*size(B));
     Cm = blkdiag(Cp1,Cp1);%zeros(size(Ccd)));
     Dm = zeros(size(Cm,1),size(Bm,2));
     closed_loops{i}=ss(Am,Bm,Cm,Dm,Ts);
     %     [Y,T,X] = step(closed_loops{i});
     [Y,T,X] = initial(closed_loops{i},[x0;x0]);
-    figure("Name","Outputs for "+num2str(Ts));
+    figure("Name","Outputs for pattern 1(0)^"+num2str(i-1)+" periodicity= "+num2str(Ts));
     plot(Y(:,1:2));
     legend(["y1","y2","y3","y4"]);
+%%%%%%%%%%%%
+    if i ==1
+        [n,d] = ss2tf(Am,Bm,Cm,Dm);
+        closed_loop_tfs{1} = tf(n(1,:),d(1,:));
+        [AA,BB,CC,DD] = tf2ss(closed_loop_tfs{i}.num{1}, closed_loop_tfs{i}.den{1});
+        closed_loop_tf2sss{i} = ss(AA,BB,CC,DD,Ts);
+    else
+        closed_loop_tfs{i} = tf(closed_loop_tfs{1},'IODelay', i-1);
+        [AA,BB,CC,DD] = tf2ss(closed_loop_tfs{i}.num{1}, closed_loop_tfs{i}.den{1});
+        closed_loop_tf2sss{i} = ss(AA,BB,CC,DD,Ts);
+    end
+    figure("Name","Poles and zeroes for 1(0)^"+num2str(i-1));
+    subplot(2,1,1);
+    pzplot(closed_loops{i});
+    title('p-z for augmented closed loops with ')
+    subplot(2,1,2);
+    pzplot(closed_loop_tfs{i});
+    title('p- z for delayed tfs with ');
     %     P_di{i} = dlyap(Am,alpha(i)*eye(size(Am)));
     Pm_di{i}=sdpvar(size(Am,1),size(Am,1));
-    constraint_di=[Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
+    constraint_di= [Am'*Pm_di{i}*Am-(1+alpha(i))*eye(size(Pm_di{i}))*Pm_di{i} <= slack,...
                                                                         Pm_di{i} >= slack];
     if isStable(i)
         fprintf("\n stable for %dh sampling time\n",i);
