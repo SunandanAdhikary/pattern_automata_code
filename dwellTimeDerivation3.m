@@ -6,7 +6,7 @@ ops1 = sdpsettings('verbose',1);
 % %LKAS%, dcmotor_speed, suspension_control, esp,
 % cruise_control, dcmotor_pos, trajectory, fuel_injection,
 % }
-system = "esp"
+system = "trajectory"
 mlfonly = 1;
 %% Given l,epsolon,sampling period
 exec_pattern='1';
@@ -80,7 +80,7 @@ if system=="trajectory"
     C = [1 0];
     D = [0];
     open_loop_dt = ss(A,B,C,D,Ts);
-    Ts_new = 2*0.05;
+    Ts_new = 0.01;
     open_loop_dt = d2d(open_loop_dt,Ts_new);
     [A,B,C,D,Ts] = ssdata(open_loop_dt);
     Q= eye(size(A,2));
