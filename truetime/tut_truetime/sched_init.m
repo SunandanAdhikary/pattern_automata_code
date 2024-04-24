@@ -118,6 +118,7 @@ for i=1:2
 % init
     data.x_hat = x0{i};
     data.u = K*x0{i};
+
 % %% deadline miss handler
 %     ttCreateHandler('dl_miss_handler', 1, 'dl_miss_code');
 %     for i = 1:3
