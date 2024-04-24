@@ -4,7 +4,7 @@ ttInitKernel('prioFP')
 % ttInitKernel('prioDM')
 % ttInitKernel('prioEDF')
 
-tasknames = {'security_task', 'control_task1' , 'control_task2'};
+tasknames = {'dynsched_task', 'control_task_esp' , 'control_task_ttc', 'control_task_cc', 'control_task_sc'};
 % Create one high-priority security task
 data.E = 0.05 ;
 ttCreatePeriodicTask( tasknames{1}, 0, 0.3, 'scheduling_dummycode1', data);

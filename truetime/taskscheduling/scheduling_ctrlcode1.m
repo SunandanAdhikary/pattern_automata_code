@@ -7,7 +7,7 @@ switch seg
 		% Pass time since last execution
 		N = jtPassTimeUntil(N,ttCurrentTime);
  		ttAnalogOut(1,N.J);
-    ttAnalogOut(2,trace(N.P));
+        ttAnalogOut(2,trace(N.P));
       
 		% Execute sampler
 		N = jtExecSys(N,2);
@@ -26,7 +26,7 @@ switch seg
 		% Pass time since last execution
 		N = jtPassTimeUntil(N,ttCurrentTime);
 		ttAnalogOut(1,N.J);
-    ttAnalogOut(2,trace(N.P));
+        ttAnalogOut(2,trace(N.P));
 		
 		% Actuation - execute sys 4
 		N = jtExecSys(N,4);
