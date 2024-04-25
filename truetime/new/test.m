@@ -1,6 +1,8 @@
 %%%%% data %%%%%%%%%
 global data;
 data.P = {};                             % plants
+data.C = {};                             % controllers
+data.O = {};                             % observers
 data.Q = {};                             % costs
 data.R = {};                             % noisevar
 data.Pd1 = {};                           % discrete plants
@@ -15,9 +17,10 @@ data.C3 = {};                            % controllers
 data.Pd4 = {};                           % discrete plants
 data.Od4 = {};                           % observers
 data.C4 = {};                            % controllers
-data.ct = {3,2,3,3};                     % controller counts
+data.ct = [3,2,3,3];                     % controller counts
 data.x0 = {};                            % initial states
 data.h = [2, 2, 2, 2];
+data.hset = {};
 
 % -- esp -- %%%%%%%%%%%%%%%%%%%%%
 A_esp = [-16.95,  -2.365;
@@ -36,11 +39,11 @@ proc_esp = 0.001; meas_esp = 0.00001;
 QN_esp = 5000000*eye(size(B_esp,1));
 RN_esp = 10*eye(1);
 h_esp = {0.01, 0.02, 0.03};
-
+data.hset{1} = h_esp;
 data.P{1} = esp;
 data.Q{1} = Qesp;
 data.R{1} = blkdiag(QN_esp, RN_esp);
-for i = 1:data.ct{1}
+for i = 1:data.ct(1)
 %     [lqg,K,~,~,L, pd] = lqgdesign(esp,Qesp,QN_esp,RN_esp,h_esp{i});
     Pd = c2d(data.P{1},h_esp{i});
     [lq, gains] = lqg(Pd,data.Q{1},data.R{1});
@@ -50,6 +53,7 @@ for i = 1:data.ct{1}
     data.Od1{i} = lq;
 end
 data.C{1} = data.C1{data.h(1)};
+data.O{1} = data.O1{data.h(1)};
 data.Od{1} = data.Od1{data.h(1)};
 data.Pd{1} = data.Pd1{data.h(1)};
 
@@ -66,11 +70,11 @@ Qttc = blkdiag(Q_ttc,R_ttc);
 QN_ttc = 1500*eye(size(B_ttc,1));
 RN_ttc = eye(1);
 h_ttc = {0.025, 0.05};
-
+data.hset{2} = h_ttc;
 data.P{2} = ttc;
 data.Q{2} = Qttc;
 data.R{2} = blkdiag(QN_ttc, RN_ttc);
-for i = 1:data.ct{2}
+for i = 1:data.ct(2)
 %     [lqg,K,~,~,L, pd] = lqgdesign(ttc,Qttc,QN_ttc,RN_ttc,h_ttc{i});
     Pd = c2d(data.P{2},h_ttc{i});
     [lq, gains] = lqg(Pd,data.Q{2},data.R{2});
@@ -80,6 +84,7 @@ for i = 1:data.ct{2}
     data.Od2{i} = lq;
 end
 data.C{2} = data.C2{data.h(2)};
+data.O{2} = data.O2{data.h(2)};
 data.Od{2} = data.Od2{data.h(2)};
 data.Pd{2} = data.Pd2{data.h(2)};
 
@@ -100,12 +105,12 @@ proc_cc= 0.01; meas_cc=0.001;
 QN_cc = proc_cc*eye(size(B_cc,1));
 RN_cc = meas_cc*eye(size(C_cc,1));
 h_cc = {0.01, 0.02, 0.04};
-
+data.hset{3} = h_cc;
 data.P{3} = cc;
 data.Q{3} = Qcc;
 data.R{3} = blkdiag(QN_cc, RN_cc);
 
-for i = 1:data.ct{3}
+for i = 1:data.ct(3)
 %     [lqg,K,~,~,L, pd] = lqgdesign(cc,Qcc,QN_cc,RN_cc,h_cc{i});
     Pd = c2d(data.P{3},h_cc{i});
     [lq, gains] = lqg(Pd,data.Q{3},data.R{3});
@@ -115,6 +120,7 @@ for i = 1:data.ct{3}
     data.Od3{i} = lq;
 end
 data.C{3} = data.C3{data.h(3)};
+data.O{3} = data.O3{data.h(3)};
 data.Od{3} = data.Od3{data.h(3)};
 data.Pd{3} = data.Pd3{data.h(3)};
 
@@ -136,11 +142,11 @@ QN_sc = proc_sc*eye(size(B_sc,1));
 RN_sc = meas_sc*eye(size(C_sc,1));
 Qsc = blkdiag(Q_sc,R_sc);
 h_sc = {0.02, 0.04, 0.05};
-
+data.hset{4} = h_sc;
 data.P{4} = sc;
 data.Q{4} = Qsc;
 data.R{4} = blkdiag(QN_sc, RN_sc);
-for i = 1:data.ct{4}
+for i = 1:data.ct(4)
 %     [lqg, K, Obs, ~, L, pd] = lqgdesign(sc,Qsc,QN_sc,RN_sc,h_sc{i})
     Pd = c2d(data.P{4},h_sc{i});
     [lq, gains] = lqg(Pd,data.Q{4},data.R{4});
@@ -150,13 +156,14 @@ for i = 1:data.ct{4}
     data.Od4{i} = lq;
 end
 data.C{4} = data.C4{data.h(4)};
+data.O{4} = data.O4{data.h(4)};
 data.Od{4} = data.Od4{data.h(4)};
 data.Pd{4} = data.Pd4{data.h(4)};
 
 %
-sym z;
-Sns = tf(1);                         % Sampler system
-Act = tf(1/z);                         % Actuator system 
+z = sym('z');
+Act = ss(1);%tf([1],[1],'Variable','z^-1');                         % Sampler system
+Sns = ss(1);%tf([0,1],[1],'Variable','z^-1');                         % Actuator system 
 
 global Systems;
 j = 4;
@@ -173,19 +180,33 @@ for i = 1 : 4
     Systems{i} = N;
 end
 
-
+%{
 % Simulate the system and log the results
-Nsteps = 10;                    % Large time steps (control periods)                    % Small time steps (for plotting)
-j = 3;
-% j1 = 4;
-for i = 1:4
+Nsteps = 12;                    % Large time steps (control periods)                    % Small time steps (for plotting)
+j = 4;
+j1 = 4;
+for i = 1:j1
     idx = j*(i-1);
 %     idx1 = j1*(i-1);
     dt = data.Pd{i}.Ts;
-    l = 0;
-    x = data.x0{i};
-    tvec = []; pvec = []; Jvec = []; xvec = [x];
+    l = 1;
     N = Systems{i};
+    x = data.x0{i};
+    xhat = 0.*x;
+    u = -data.C{i}*xhat;
+    y = data.P{i}.C*x;
+    r = y - data.P{i}.C*xhat;
+    tvec = []; pvec = []; Jvec = []; Jvec1 = [];
+    xvec = {}; yvec = {}; 
+    xhatvec = {}; uvec = {};
+    tvec(l) = N.Tsim; pvec(l) = N.P(1,1);  Jvec(1) = N.J;
+    Jvec1(l) = [x;u]'*data.Q{i}*[x;u];
+    xvec{1} = x; yvec{1} = y; 
+    xhatvec{1} = xhat; uvec{1} = u;
+    plant = data.Pd{i};
+    process = data.P{i};
+    process.C = eye(size(process.A,1));
+    process.D = zeros(size(process.A,1),size(process.B,2));
     for k = 1:dt:Nsteps
         l = l+1;
 %         if l == 1
@@ -193,44 +214,60 @@ for i = 1:4
 %         else
 %             Jvec(l) = N.J - Jvec(l-1);
 %         end
-        tvec(l) = N.Tsim; pvec(l) = N.P(1,1); 
-        xvec(l+1) = N.Ac*x;
+        tvec(l) = N.Tsim; pvec(l) = N.P(1,1);
+        tspan = tvec(l-1):0.01:tvec(l)+dt;
+        uspan = u.*ones(size(tspan));
+        xspan = lsim(process, uspan, tspan, x);
+        x = xspan(end,:)';
+        Jvec1(l+1)= [x;u]'*data.Q{i}*[x;u];
+        y = plant.C*x;
+        xpred = plant.A*xhat+plant.B*u;
+        r = y - plant.C*xpred;
+        xhat = xpred+data.O{i}*r;
+        u = -data.C{i}*xhat;
+        xvec{l+1} = x;
+        yvec{l+1} = y;
+        xhatvec{l+1} = xhat;
+        uvec{l+1} = u;
         N = jtPassTime(N, dt);
         N = jtExecSys(N,2);
         N = jtExecSys(N,3);
         N = jtExecSys(N,4);
         N.samp = l;
     end
-    xvec = xvec
     % Plot the results
 %     title('system'+num2str(i));
-    subplot(4,3,idx+1);
+    subplot(j1,j,idx+1);
     plot(tvec,pvec)
     xlabel('Time')
     ylabel('Process variance')
-    subplot(4,3,idx+2);
-    plot(tvec,Jvec)
+    subplot(j1,j,idx+2);
+    plot(tvec,Jvec1(:,1:end-1))
     xlabel('Time')
-    ylabel('Accumulated cost')
-    subplot(4,3,idx+3);
-    plot(tvec,xvec)
+    ylabel('cost')
+    subplot(j1,j,idx+3);
+    plot(tvec,cell2mat(xvec))
+    xlabel('Time')
+    ylabel('states')
+    subplot(j1,j,idx+4);
+    plot(tvec,cell2mat(yvec))
     xlabel('Time')
     ylabel('states')
 end
-%% 
+%}
 function dxdt = odefun1(t,x,u)
     dxdt = data.P{1}.A*x + data.P{1}.B*u;
-    data.odefun{1} = odefun1;
+    % data.odefun{1} = odefun1;
 end
 function dxdt = odefun2(t,x,u)
     dxdt = data.P{2}.A*x + data.P{2}.B*u;
-    data.odefun{2} = odefun2;
+    % data.odefun{2} = odefun2;
 end
 function dxdt = odefun3(t,x,u)
     dxdt = data.P{3}.A*x + data.P{3}.B*u;
-    data.odefun{3} = odefun3;
+    % data.odefun{3} = odefun3;
 end
 function dxdt = odefun4(t,x,u)
     dxdt = data.P{4}.A*x + data.P{4}.B*u;
-    data.odefun{4} = odefun4;
+    % data.odefun{4} = odefun4;
 end

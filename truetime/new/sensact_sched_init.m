@@ -8,15 +8,15 @@ ttInitKernel('prioFP')
 taskct = 4;
 tasknames = {'esp_senstx_task', 'ttc_senstx_task' , 'cc_senstx_task', 'sc_senstx_task', ...
             'esp_rxact_task', 'ttc_rxact_task', 'cc_rxact_task', 'sc_rxact_task'};
-taskexecs = {'esp_senstx_code', 'ttc_senstx_code' , 'cc_senstx_code', 'sc_senstx_code', ...
-            'esp_rxact_code', 'ttc_rxact_code', 'cc_rxact_code', 'sc_rxact_code'};
+taskexecs = {'esp_senstx_code', 'ttc_senstx_code' , 'cc_senstx_code', 'sc_senstx_code'};%, ...
+            % 'esp_rxact_code', 'ttc_rxact_code', 'cc_rxact_code', 'sc_rxact_code'};
 % Create periodic tasks for repeated sensing, transmission, reception, actuation
 data.ct = taskct;
 data.wcet_snac = 0.0009;
 data.h = {0.01, 0.04, 0.01, 0.04};
 data.txids = snsids;
 data.rxids = actids;
-for i=1:2*taskct
+for i=1:taskct
     ttCreatePeriodicTask(tasknames{i}, 0, data.h(i), taskexecs{i}, data);
 %     ttSetPriority(i, tasknames{i});
 %     ttSetPriority(i, tasknames{2*i});
@@ -67,19 +67,3 @@ data.odefun{1} = odefun1;
 data.odefun{2} = odefun2;
 data.odefun{3} = odefun3;
 data.odefun{4} = odefun4;
-
-Sns = ss(1);                         % Sampler system
-Act = ss(1);                         % Actuator system 
-
-global N
-N = jtInit;                          % Initialize Jittersim
-j = 4;
-for i = 1: data.ct
-    idx = j*(i-1);
-    N = jtAddContSys(N,idx+1,data.P{i},idx+4, data.Q{idx+1}, data.RN{idx+1});   % Add sys 1 (Plant), input from sys 4
-    N = jtAddDiscSys(N,idx+2,Sns,idx+1);                                        % Add sys 2 (Sens), input from 1
-    N = jtAddDiscSys(N,idx+3,data.C{i},idx+2, data.Q{idx+1}, data.RN{idx+1});   % Add sys 3 (Ctrl), input from 2
-    N = jtAddDiscSys(N,idx+4,Act,idx+3);                                        % Add sys 4 (Act), input from 3
-end
-N = jtCalcDynamics(N);                                      % Calculate the internal dynamics
-N.samp = 0;

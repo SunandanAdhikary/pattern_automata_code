@@ -335,8 +335,8 @@ open_loops{i} = d2d(open_loop_dt, Ts);
 max_zero_ol(i) = max(abs(zero(open_loops{i})));
 lqg_reg = lqg(open_loop_dt,QXU,QWV);
 [Acd,Bcd,Ccd,Dcd] = ssdata(lqg_reg);  % 
-K =  [-12.8013, -13.7651];%[0.8995, 3.8399];%-Ccd;
-L = [-9.0833; 4.2456;];%[0.4332; 1.5547];%Bcd;
+% K =  [-12.8013, -13.7651];%[0.8995, 3.8399];%-Ccd;
+% L = [-9.0833; 4.2456;];%[0.4332; 1.5547];%Bcd;
 sys_sss{i} =ss(A-B*K,B,C,D,Ts);
 max_zero_cl(i) = max(abs(zero(sys_sss{i})));
 %% creating A1, A0

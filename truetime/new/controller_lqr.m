@@ -1,15 +1,17 @@
-function data = controller_lqr(data, y, ref)
+function [u, xhat] = controller_lqr(data, y, xhat, u, sysid)%ref)
 
-A = data.A_d;
-B = data.B_d;
-C = data.C_d;
-L = data.L;
-K = data.K;
-F = data.F;
+A = data.Pd{sysid}.A;
+B = data.Pd{sysid}.B;
+C = data.Pd{sysid}.C;
+K = -data.C{sysid};
+L = data.O{sysid};
+% F = data.F;
 % estimator
-data.x_hat = A*data.x_hat+B*data.u+L*(y-C*data.x_hat);
+% data.x_hat = A*data.x_hat + B*data.u + L*(y - C*data.x_hat);
+xpred = A*xhat+ B*u;
+r = y - C*xpred;
+xhat = xpred+L*r;
 % controller
-data.u = - K*data.x_hat - F*ref;
-% contol cost
+data.u = - K*xhat ;%- F*ref;
 
 
