@@ -254,7 +254,7 @@ for i = 1:j1
     xlabel('Time')
     ylabel('states')
 end
-%}
+
 function dxdt = odefun1(t,x,u)
     dxdt = data.P{1}.A*x + data.P{1}.B*u;
     % data.odefun{1} = odefun1;
@@ -271,3 +271,4 @@ function dxdt = odefun4(t,x,u)
     dxdt = data.P{4}.A*x + data.P{4}.B*u;
     % data.odefun{4} = odefun4;
 end
+%}
