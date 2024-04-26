@@ -23,7 +23,6 @@ sharedmem.h = [2, 2, 2, 2];
 sharedmem.hset = {};
 snsids = {'0x11', '0x21', '0x31', '0x41'};
 actids = {'0xa1', '0x21', '0x31', '0x41'};
-
 % -- esp -- %%%%%%%%%%%%%%%%%%%%%
 A_esp = [-16.95,  -2.365;
                  66.82,   -17.2];
@@ -31,8 +30,6 @@ B_esp = [8.478;
              153.1];
 C_esp = [0,1];
 D_esp = [0];
-C_esp1 = eye(size(A_esp,1));
-D_esp1 = zeros(size(A_esp,1),size(B_esp,2));
 sharedmem.x0{1} = [0;0.2];
 esp = ss(A_esp,B_esp,C_esp,D_esp);
 p_esp = 0.00001;
@@ -47,7 +44,6 @@ sharedmem.hset{1} = h_esp;
 sharedmem.P{1} = esp;
 sharedmem.Q{1} = Qesp;
 sharedmem.R{1} = blkdiag(QN_esp, RN_esp);
-
 for i = 1:sharedmem.ct(1)
 %     [lqg,K,~,~,L, pd] = lqgdesign(esp,Qesp,QN_esp,RN_esp,h_esp{i});
     Pd = c2d(sharedmem.P{1},h_esp{i});
@@ -67,8 +63,6 @@ A_ttc = [0,1;0,0];
 B_ttc = [0;1];
 C_ttc = [1,0];
 D_ttc = [0];
-C_ttc1 = eye(size(A_ttc,1));
-D_ttc1 = zeros(size(A_ttc,1),size(B_ttc,2));
 sharedmem.x0{2} = [10;0];
 ttc = ss(A_ttc,B_ttc,C_ttc,D_ttc);
 Q_ttc = [0.16;0.04].*eye(size(A_ttc,2));
@@ -81,7 +75,6 @@ sharedmem.hset{2} = h_ttc;
 sharedmem.P{2} = ttc;
 sharedmem.Q{2} = Qttc;
 sharedmem.R{2} = blkdiag(QN_ttc, RN_ttc);
-
 for i = 1:sharedmem.ct(2)
 %     [lqg,K,~,~,L, pd] = lqgdesign(ttc,Qttc,QN_ttc,RN_ttc,h_ttc{i});
     Pd = c2d(sharedmem.P{2},h_ttc{i});
@@ -103,8 +96,8 @@ A_cc = [0 1 0;
 B_cc = [0; 0; 2.4767];
 C_cc = [1 0 0];
 D_cc = [0];
-C_cc1 = eye(size(A_cc,1));
-D_cc1 = zeros(size(A_cc,1),size(B_cc,2));
+C_sc1 = eye(size(A_cc,1));
+D_sc1 = zeros(size(A_sc,1),size(B_sc,2));
 sharedmem.x0{3} = [0;10;10];
 cc = ss(A_cc,B_cc,C_cc,D_cc);
 q_cc=0.000000011; r_cc=0.000000001;
@@ -158,7 +151,6 @@ sharedmem.hset{4} = h_sc;
 sharedmem.P{4} = sc;
 sharedmem.Q{4} = Qsc;
 sharedmem.R{4} = blkdiag(QN_sc, RN_sc);
-
 for i = 1:sharedmem.ct(4)
 %     [lqg, K, Obs, ~, L, pd] = lqgdesign(sc,Qsc,QN_sc,RN_sc,h_sc{i})
     Pd = c2d(sharedmem.P{4},h_sc{i});
@@ -173,9 +165,6 @@ sharedmem.O{4} = sharedmem.O4{sharedmem.h(4)};
 sharedmem.Od{4} = sharedmem.Od4{sharedmem.h(4)};
 sharedmem.Pd{4} = sharedmem.Pd4{sharedmem.h(4)};
 
-%
-sharedmem.wcet_ctrl = 0.005 ;
-sharedmem.rchan = [1,2,3,4];
 %
 z = sym('z');
 Act = ss(1);%tf([1],[1],'Variable','z^-1');                         % Sampler system
@@ -206,8 +195,7 @@ for i = 1 : 4
     N.xvec{1} = x; N.yvec{1} = y; 
     N.xhatvec{1} = xhat; N.uvec{1} = u;
     N.h = sharedmem.Pd{i}.Ts;
-    N.rx = actids{i};
-    N.tx = snsids{i};
+    
     Systems{i} = N;
 end
 

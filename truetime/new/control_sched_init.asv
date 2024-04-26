@@ -1,4 +1,4 @@
-function control_sched_init(Systems)
+function control_sched_init()
 
 ttInitKernel('prioFP')
 % ttInitKernel('prioDM')
@@ -6,13 +6,14 @@ ttInitKernel('prioFP')
 
 tasknames = {'control_task_esp' , 'control_task_ttc', 'control_task_cc', 'control_task_sc', ...
                 'dynsched'};
-taskexecs = {'esp_controller_code' , 'ttc_controller_code', 'cc_controller_code', 'sc_controller_code', ...
+taskexecs = {'esp_controller_code' , 'ttc_controller_code', 'cc_control_code', 'sc_control_code', ...
                 'dynsched_code'};
 %                 'rx_code_esp' , 'rx_code_ttc', 'rx_code_cc', 'rx_code_sc',...
 % Create dynamic scheduler
-
+sharedmem.wcet_ctrl = 0.005 ;
+sharedmem.rchan = [1,2,3,4];
 for i = 1 : 4
-    ttCreatePeriodicTask(tasknames{i}, 0, Systems{i}.h, taskexecs{i}, Systems{i});
+    ttCreatePeriodicTask(tasknames{i}, 0, sharedmem.h(i), taskexecs{i}, Systems{i});
     ttSetPriority(i, tasknames{i});
 end
 
