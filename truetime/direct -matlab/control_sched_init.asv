@@ -34,11 +34,11 @@ for i = 1 : taskct
     sys.util = getUtil(sys);
     sys.task
 %     tasknames{i}
-    ttCreatePeriodicTask(sys.task, starttime, sys.h, taskexecs{i}, sys);
-%     ttCreateTask(sys.task, starttime, taskexecs{i}, sys);
+%     ttCreatePeriodicTask(sys.task, starttime, sys.h, taskexecs{i}, sys);
+    ttCreateTask(sys.task, starttime, taskexecs{i}, sys);
 %     ttSetPeriod(sys.h, sys.task);
     ttSetPriority(i+1, sys.task);
-    ttAttachDLHandler(sys.task, 'dl_miss_handler');
+%     ttAttachTriggerHandler(sys.task, 'dl_miss_handler');
 end
 % ttCreatePeriodicTask('dynsched', hyp-0.005, hyp, taskexecs{taskct+1}, Systems);
 % ttCreateTask('dynsched', hyp, taskexecs{taskct+1}, Systems);

@@ -1,6 +1,6 @@
 function [exectime, System] = ttc_controller_code(seg, System)
 
-persistent unew xhatnew Jnew;   % msgtx;
+persistent unew xhatnew;% msgtx;
 
 sysid = 2;                       % ttc
 
@@ -16,19 +16,15 @@ switch seg
         y = System.yvec{System.samp};%0.0;
       end
     %   ref = ttAnalogIn(sysid);      % Read reference value
-      now = ttCurrentTime;
-%       disp("ttc control")
+      now = ttCurrentTime;%ttGetCPUTime("control_task_ttc");
+      disp("ttc control")
       System = controller_lqr(System, y, xhat, u);
       unew = System.uvec{end};
-      Jnew = System.Jvec(end);
-      %------------------------%
-      System = updateParams(System,Jnew);
-      %------------------------%
     %   msgtx.data =unew;
     %   msgtx.id = System.tx{sysid};
-      then = ttCurrentTime;
-      exectime = then-now+System.wcet;
-%       System.wcet = exectime+0.0001;
+      then = ttCurrentTime;%ttGetCPUTime(control_task_ttc);
+      exectime = then-now;
+      System.wcet = exectime;
  else
       disp("ttc control killed")
       ttKillJob(System.task);
@@ -36,11 +32,10 @@ switch seg
   end
  case 2
     ttAnalogOut(sysid,unew);
-    ttAnalogOut(4+sysid,Jnew);
 %   ttAnalogOut(2*(sysid-1)+1,unew);
 %   ttAnalogOut(2*(sysid-1)+2,xhatnew);
 %   ttSendMsg(1, unew, 64, System.tx{sysid});    % Send 80 bits to node 2 (actuator)
-  exectime = 0.00005;
+  exectime = System.wcet;
  case 3
   exectime = -1; % finished
 end

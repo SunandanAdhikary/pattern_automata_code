@@ -1,29 +1,28 @@
-function [exectime, System] = cc_controller_code(seg, System)
-persistent unew xhatnew Jnew; % msgtx;
+function [exectime, System] = esp_controller_code(seg, System)
 
-sysid = 3;                          % cc
+persistent unew xhatnew Jnew;%msgtx;
+sysid = 1;                          % esp
 
 xhat = System.xhatvec{end};
 u = System.uvec{end};
 switch seg
  case 1
-   if System.acess(rem(System.samp+1,System.ct)+1)
-    %   msg = ttGetMsg(1);                % Obtain sensor value
-      y   = ttAnalogIn(sysid);%msg.data;
+  if System.acess(rem(System.samp+1,System.ct)+1)
+      y   = ttAnalogIn(sysid);
       if isempty(y)
         disp('Error in controller: no message received!');
         y = System.yvec{end};%0.0;
       end
-    %   ref = ttAnalogIn(sysid);              % Read reference value
-      now = ttCurrentTime;%ttGetCPUTime(control_task_cc);
-%       disp("cc control")
+    %   ref = ttAnalogIn(sysid);          % Read reference value
+      now = ttCurrentTime;
+%       disp("esp control")
       System = controller_lqr(System, y, xhat, u);
       unew = System.uvec{end};
       Jnew = System.Jvec(end);
       %------------------------%
       if Jnew > System.Jth
-        disp("-------cc more-------");
-        if System.hidx > 1 && System.totalutil < 1
+        disp("-------esp more-------");
+        if System.hidx > 1
             System.hidx = System.hidx-1;
             System.h = System.hset(System.hidx);
             System.util = getUtil(System);
@@ -31,10 +30,10 @@ switch seg
             ttSetPeriod(System.h, System.task);
             ttSetData(System.task, System);
         else
-            disp("cc no way 2 incr");
+            disp("esp no way 2 incr");
         end
-      elseif J < System.Jth*0.3 
-          disp("--------cc less-------");
+      elseif J < System.Jth*0.3
+          disp("--------esp less-------");
           if System.hidx < length(System.hset)
             System.hidx = System.hidx+1;
             System.h = System.hset(System.hidx);
@@ -43,29 +42,29 @@ switch seg
             ttSetPeriod(System.h, System.task);
             ttSetData(System.task, System);
          else
-            disp("cc no way 2 red");
+            disp("esp no way 2 red");
           end
       else
-          disp ("cc ok");
+          disp ("esp ok");
      end
     %------------------------%
     %   msgtx.data =unew;
     %   msgtx.id = System.tx{sysid};
-      then = ttCurrentTime;%ttGetCPUTime(control_task_cc);
+      then = ttCurrentTime;
       exectime = then-now+System.wcet;
-%       System.wcet = exectime;
-   else
-      disp("cc control killed")
+%       System.wcet = exectime+0.00005;
+  else
+      disp("esp control killed")
       ttKillJob(System.task);
       exectime = 0.00;
   end
  case 2
-    ttAnalogOut(sysid,unew);
+    ttAnalogOut(sysid, unew);
     ttAnalogOut(4+sysid,Jnew);
 %   ttAnalogOut(2*(sysid-1)+1,unew);
 %   ttAnalogOut(2*(sysid-1)+2,xhatnew);
 %   ttSendMsg(1, unew, 64, System.tx{sysid});    % Send 80 bits to node 2 (actuator)
-  exectime = 0.0005;
+    exectime = 0.0;%0005;
  case 3
   exectime = -1; % finished
 end

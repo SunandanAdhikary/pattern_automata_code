@@ -17,16 +17,19 @@ sharedmem.C3 = {};                            % controllers
 sharedmem.Pd4 = {};                           % discrete plants
 sharedmem.Od4 = {};                           % observers
 sharedmem.C4 = {};                            % controllers
-sharedmem.ct = [3,2,3,3,4];                   % controller counts
+sharedmem.Pd4 = {};                           % discrete plants
+sharedmem.Od4 = {};                           % observers
+sharedmem.C4 = {};                            % controllers
+sharedmem.ct = [3,2,3,3,3];                   % controller counts
 sharedmem.x0 = {};                            % initial states
-sharedmem.h = [2, 2, 2, 2];
-sharedmem.Jth = [1, 2, 1, 1];
+sharedmem.h = [2, 2, 2, 2, 2];
+sharedmem.Jth = [1, 2, 1, 1, 1.5];
 sharedmem.hset = {};
 snsids = {'0x11', '0x21', '0x31', '0x41'};
 actids = {'0xa1', '0xc4', '0xd1', '0xf4'};
 tasknames = {'control_task_esp' , 'control_task_ttc', 'control_task_cc', 'control_task_sc', 'control_task_lkas',...
                 'dynsched'};
-sysnames = {'esp' , 'ttc', 'cc', 'sc','lkas'};
+sysnames = {'esp' , 'ttc', 'cc', 'sc', 'lkas'};
 digits(10);
 format longG;
 % -- esp -- %%%%%%%%%%%%%%%%%%%%%
@@ -164,6 +167,20 @@ sharedmem.P{4} = sc;
 sharedmem.Q{4} = Qsc;
 sharedmem.R{4} = blkdiag(QN_sc, RN_sc);
 
+for i = 1:sharedmem.ct(4)
+%     [lqg,K,~,~,L, pd] = lqgdesign(cc,Qcc,QN_cc,RN_cc,h_cc{i});
+    Pd = c2d(sharedmem.P{4},h_sc{i});
+    [lq, gains] = lqg(Pd,sharedmem.Q{3},sharedmem.R{3});
+    sharedmem.Pd4{i} =  Pd;
+    sharedmem.O4{i} =  gains.L;
+    sharedmem.C4{i} =  gains.Kx;
+    sharedmem.Od4{i} = lq;
+end
+sharedmem.C{3} = sharedmem.C3{sharedmem.h(3)};
+sharedmem.O{3} = sharedmem.O3{sharedmem.h(3)};
+sharedmem.Od{3} = sharedmem.Od3{sharedmem.h(3)};
+sharedmem.Pd{3} = sharedmem.Pd3{sharedmem.h(3)};
+
 % -- lkas -- %%%%%%%%%%%%
 m = 1575;   % total vehicle mass (kg)
 Iz = 2875;  % yaw moment of inertia of the vehicle (Kg m^2)
@@ -187,11 +204,11 @@ y_min =-2;
 y_max = 2;
 sharedmem.x0{5} = [y_min + (y_max - y_min) / 4, 0, 0, 0];
 lkas = ss(A_lkas,B_lkas,C_lkas,D_lkas);
-proc_lkas= 0.01; meas_lkas=0.01;
+proc_lkas= 0.1; meas_lkas=0.01;
 QN_lkas = proc_lkas*eye(size(B_lkas,1));
 RN_lkas = meas_lkas*eye(size(C_lkas,1));
 Qlkas = blkdiag(Q_lkas,R_lkas);
-h_lkas = {0.01, 0.02, 0.03, 0.04};
+h_lkas = {0.01, 0.03, 0.04};
 sharedmem.hset{5} = h_lkas;
 sharedmem.P{5} = lkas;
 sharedmem.Q{5} = Qlkas;
@@ -200,7 +217,7 @@ sharedmem.R{5} = blkdiag(QN_lkas, RN_lkas);
 for i = 1:sharedmem.ct(5)
 %     [lqg, K, Obs, ~, L, pd] = lqgdesign(sc,Qsc,QN_sc,RN_sc,h_sc{i})
     Pd = c2d(sharedmem.P{5},h_lkas{i});
-    [lq, gains] = lqg(Pd,sharedmem.Q{5},sharedmem.R{5});
+    [lq, gains] = lqg(Pd,10*sharedmem.Q{5},10*sharedmem.R{5}) % multiplied cost for feasibility
     sharedmem.Pd5{i} =  Pd;
     sharedmem.O5{i} =  gains.L;
     sharedmem.C5{i} =  gains.Kx;
@@ -221,14 +238,14 @@ Sns = ss(1);%tf([0,1],[1],'Variable','z^-1');                       % Actuator s
 global Systems;
 j = 5;
 for i = 1 : 5
-    N = jtInit;                                                     % Initialize Jittersim
-    idx = j*(i-1);
-    N = jtAddContSys(N, 1, sharedmem.P{i}, 4, sharedmem.R{i}(1:size(sharedmem.P{i}.A,1),1:size(sharedmem.P{i}.A,1)), sharedmem.Q{i});   % Add sys 1 (Plant), input from sys 4
-    N = jtAddDiscSys(N, 2, Sns, 1);                                 % Add sys 2 (Sens), input from 1
-%     N = jtAddDiscSys(N, 3, ss(-sharedmem.C{i}), idx+2);%, sharedmem.R{idx+1}, sharedmem.Q{idx+1}) % Add sys 3 (Ctrl), input from 2
-    N = jtAddDiscSys(N, 3, sharedmem.Od{i}, 2);%, sharedmem.R{i}, sharedmem.Q{i})      % Add sys 3 (Ctrl), input from 2
-    N = jtAddDiscSys(N, 4, Act, 3);                                 % Add sys 4 (Act), input from 3
-    N = jtCalcDynamics(N);                                          % Calculate the internal dynamics
+%     N = jtInit;                                                     % Initialize Jittersim
+%     idx = j*(i-1);
+%     N = jtAddContSys(N, 1, sharedmem.P{i}, 4, sharedmem.R{i}(1:size(sharedmem.P{i}.A,1),1:size(sharedmem.P{i}.A,1)), sharedmem.Q{i});   % Add sys 1 (Plant), input from sys 4
+%     N = jtAddDiscSys(N, 2, Sns, 1);                                 % Add sys 2 (Sens), input from 1
+% %     N = jtAddDiscSys(N, 3, ss(-sharedmem.C{i}), idx+2);%, sharedmem.R{idx+1}, sharedmem.Q{idx+1}) % Add sys 3 (Ctrl), input from 2
+%     N = jtAddDiscSys(N, 3, sharedmem.Od{i}, 2);%, sharedmem.R{i}, sharedmem.Q{i})      % Add sys 3 (Ctrl), input from 2
+%     N = jtAddDiscSys(N, 4, Act, 3);                                 % Add sys 4 (Act), input from 3
+%     N = jtCalcDynamics(N);                                          % Calculate the internal dynamics
     N.samp = 0;
     N.tvec = []; %pvec = []; Jvec = []; Jvec1 = [];
 %     N.xvec = {}; N.yvec = {}; 
@@ -285,7 +302,7 @@ for i = 1 : 5
         N.dsysmats = sharedmem.Pd5;
         N.lqgmats = sharedmem.Od5;
  end
-    N.P = sharedmem.P{i};
+    N.Pc = sharedmem.P{i};
     N.C = N.ctrlgains{N.hidx};
     N.O = N.estgains{N.hidx};
     N.Od = N.lqgmats{N.hidx};
@@ -301,11 +318,11 @@ for i = 1 : 5
 end
 sharedmem.sys = Systems;
 disp("init done")
-%{ 
+% %{ 
 % Simulate the system and log the results
 Nsteps = 12;                    % Large time steps (control periods)                    % Small time steps (for plotting)
-j = 4;
-j1 = 4;
+j = 5;
+j1 = 5;
 for i = 1:j1
     idx = j*(i-1);
 %     idx1 = j1*(i-1);
@@ -350,10 +367,10 @@ for i = 1:j1
         yvec{l+1} = y;
         xhatvec{l+1} = xhat;
         uvec{l+1} = u;
-        N = jtPassTime(N, dt);
-        N = jtExecSys(N,2);
-        N = jtExecSys(N,3);
-        N = jtExecSys(N,4);
+%         N = jtPassTime(N, dt);
+%         N = jtExecSys(N,2);
+%         N = jtExecSys(N,3);
+%         N = jtExecSys(N,4);
         N.samp = l;
     end
 
